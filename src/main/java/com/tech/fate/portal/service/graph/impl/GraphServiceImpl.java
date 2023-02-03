@@ -132,6 +132,8 @@ public class GraphServiceImpl implements GraphService {
                     jobDto.setStatus(JobStatus.JobRunning.getStatus());
                     jobDto.setStatusMessage(JobStatus.JobRunning.getStatusMessage());
                     jobDto.setFateJobId(JSONUtil.parseObj(data).getStr(FateFlowConstants.JOB_ID));
+                    jobDto.setDsl(JSONUtil.parseObj(jobParams).getStr(JobConstants.JOB_DSL));
+                    jobDto.setConf(JSONUtil.parseObj(jobParams).getStr(JobConstants.JOB_CONF));
                     this.updateJob(jobDto);
                     return CheckResultStatus.SUCCESS.getStatus();
                 } else {
