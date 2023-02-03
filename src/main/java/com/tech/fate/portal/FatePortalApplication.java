@@ -22,9 +22,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 
-/**
- * @author liuyu
- */
 @SpringBootApplication
 @MapperScan("com.tech.fate.portal.mapper")
 @EnableWebMvc
