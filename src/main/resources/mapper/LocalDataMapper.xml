@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.fate.portal.mapper.LocalDataMapper">
+
+    <resultMap id="localDataMap" type="com.tech.fate.portal.dto.LocalDataDto">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="deleted_at" property="deletedAt" jdbcType="TIMESTAMP"/>
+        <result column="uuid" property="uuid" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="CLOB"/>
+        <result column="column" property="column" jdbcType="CLOB"/>
+        <result column="table_name" property="tableName" jdbcType="VARCHAR"/>
+        <result column="table_namespace" property="tableNamespace" jdbcType="VARCHAR"/>
+        <result column="count" property="count" jdbcType="BIGINT"/>
+        <result column="features" property="features" jdbcType="CLOB"/>
+        <result column="preview" property="preview" jdbcType="CLOB"/>
+        <result column="id_meta_info" property="idMetaInfo" jdbcType="CLOB"/>
+        <result column="job_id" property="jobId" jdbcType="VARCHAR"/>
+        <result column="job_conf" property="jobConf" jdbcType="CLOB"/>
+        <result column="job_status" property="jobStatus" jdbcType="SMALLINT"/>
+        <result column="job_error_msg" property="jobErrorMsg" jdbcType="CLOB"/>
+        <result column="local_file_path" property="localFilePath" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <select id="queryLocalDataDtoList"  resultMap="localDataMap">
+        select *
+        from local_data
+    </select>
+
+    <select id="queryLocalDataByUuid" parameterType="String" resultMap="localDataMap">
+        select *
+        from local_data
+        where uuid=#{uuid}
+    </select>
+
+    <insert id="addLocalData" parameterType="com.tech.fate.portal.dto.LocalDataDto">
+        insert into local_data
+        (created_at,updated_at,deleted_at,uuid,`name`,description,`column`,`table_name`,table_namespace,
+        `count`,features,preview,job_id,job_conf,local_file_path)
+        values (#{createdAt},#{updatedAt},#{deletedAt},#{uuid},#{name},#{description},#{column},#{tableName},
+        #{tableNamespace},#{count},#{features},#{preview},#{jobId},#{jobConf},#{localFilePath})
+    </insert>
+
+    <delete id="deleteLocalDataByUuid" parameterType="String" >
+        delete from local_data
+        where uuid=#{uuid}
+    </delete>
+</mapper>

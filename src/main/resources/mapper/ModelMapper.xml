@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.fate.portal.mapper.ModelMapper">
+
+    <resultMap id="queryModelDtoMap" type="com.tech.fate.portal.dto.ModelDto">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="deleted_at" property="deletedAt" jdbcType="TIMESTAMP"/>
+        <result column="uuid" property="uuid" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="fate_model_id" property="fateModelId" jdbcType="VARCHAR"/>
+        <result column="fate_model_version" property="fateModelVersion" jdbcType="VARCHAR"/>
+        <result column="project_uuid" property="projectUuid" jdbcType="VARCHAR"/>
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="job_uuid" property="jobUuid" jdbcType="VARCHAR"/>
+        <result column="job_name" property="jobName" jdbcType="VARCHAR"/>
+        <result column="component_name" property="componentName" jdbcType="VARCHAR"/>
+        <result column="component_algorithm_type" property="componentAlgorithmType" jdbcType="SMALLINT"/>
+        <result column="role" property="role" jdbcType="VARCHAR"/>
+        <result column="party_id" property="partyId" jdbcType="BIGINT"/>
+        <result column="evaluation" property="evaluation" jdbcType="CLOB"/>
+    </resultMap>
+    <select id="queryModelPage" resultMap="queryModelDtoMap">
+        select *
+        from models
+    </select>
+    <select id="queryModelPageForProject" parameterType="java.lang.String" resultMap="queryModelDtoMap">
+        select *
+        from models where project_uuid=#{projectUuid};
+    </select>
+    <select id="getModelByUuid" parameterType="java.lang.String" resultMap="queryModelDtoMap">
+        select *
+        from models where uuid=#{uuid}
+    </select>
+
+    <insert id="handleModelCreation" parameterType="com.tech.fate.portal.dto.ModelDto">
+        insert into models(created_at,updated_at,deleted_at,uuid,name,fate_model_id,fate_model_version,project_uuid,project_name,job_uuid,job_name,component_name,
+                           component_algorithm_type,role,party_id,evaluation)
+        values(#{createdAt},#{updatedAt},#{deletedAt},#{uuid},#{name},#{fateModelId},#{fateModelVersion},#{projectUuid},#{projectName},#{jobUuid},#{jobName},#{componentName},
+               #{componentAlgorithmType},#{role},#{partyId},#{evaluation})
+    </insert>
+</mapper>

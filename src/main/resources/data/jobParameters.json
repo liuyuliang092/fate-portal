@@ -1,0 +1,8 @@
+{
+  "common": {
+    "auto_retries": @auto_retries,
+    "computing_partitions": @computing_partitions,
+    "task_cores": @task_cores,
+    "task_parallelism": @task_parallelism
+  }
+}

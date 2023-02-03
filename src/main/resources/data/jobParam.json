@@ -1,0 +1,195 @@
+{
+  "dsl": {
+    "components": {
+      "dataio_0": {
+        "input": {
+          "data": {
+            "data": [
+              "reader_0.table"
+            ]
+          }
+        },
+        "module": "DataIO",
+        "need_deploy": true,
+        "output": {
+          "data": [
+            "train"
+          ],
+          "model": [
+            "dataio"
+          ]
+        }
+      },
+      "evaluation_0": {
+        "input": {
+          "data": {
+            "data": [
+              "hetero_lr_0.train"
+            ]
+          }
+        },
+        "module": "Evaluation",
+        "output": {
+          "data": [
+            "evaluate"
+          ]
+        }
+      },
+      "hetero_feature_binning_0": {
+        "input": {
+          "data": {
+            "data": [
+              "intersection_0.train"
+            ]
+          }
+        },
+        "module": "HeteroFeatureBinning",
+        "output": {
+          "data": [
+            "train"
+          ],
+          "model": [
+            "hetero_feature_binning"
+          ]
+        }
+      },
+      "hetero_feature_selection_0": {
+        "input": {
+          "data": {
+            "data": [
+              "hetero_feature_binning_0.train"
+            ]
+          },
+          "isometric_model": [
+            "hetero_feature_binning_0.hetero_feature_binning"
+          ]
+        },
+        "module": "HeteroFeatureSelection",
+        "output": {
+          "data": [
+            "train"
+          ],
+          "model": [
+            "selected"
+          ]
+        }
+      },
+      "hetero_lr_0": {
+        "input": {
+          "data": {
+            "train_data": [
+              "hetero_feature_selection_0.train"
+            ]
+          }
+        },
+        "module": "HeteroLR",
+        "output": {
+          "data": [
+            "train"
+          ],
+          "model": [
+            "hetero_lr"
+          ]
+        }
+      },
+      "intersection_0": {
+        "input": {
+          "data": {
+            "data": [
+              "dataio_0.train"
+            ]
+          }
+        },
+        "module": "Intersection",
+        "output": {
+          "data": [
+            "train"
+          ]
+        }
+      },
+      "reader_0": {
+        "module": "Reader",
+        "output": {
+          "data": [
+            "table"
+          ]
+        }
+      }
+    }
+  },
+  "runtime_conf": {
+    "component_parameters": {
+      "common": {
+        "hetero_lr_0": {
+          "alpha": 0.01,
+          "batch_size": 320,
+          "init_param": {
+            "init_method": "random_uniform"
+          },
+          "learning_rate": 0.15,
+          "max_iter": 3,
+          "optimizer": "rmsprop",
+          "penalty": "L2"
+        },
+        "intersection_0": {
+          "intersect_method": "raw",
+          "only_output_key": false,
+          "sync_intersect_ids": true
+        }
+      },
+      "role": {
+        "guest": {
+          "0": {
+            "dataio_0": {
+              "label_name": "y",
+              "label_type": "int",
+              "output_format": "dense",
+              "with_label": true
+            },
+            "reader_0": {
+              "table": {
+                "name": "breast_hetero_guest",
+                "namespace": "experiment"
+              }
+            }
+          }
+        },
+        "host": {
+          "0": {
+            "dataio_0": {
+              "output_format": "dense",
+              "with_label": false
+            },
+            "evaluation_0": {
+              "need_run": false
+            },
+            "reader_0": {
+              "table": {
+                "name": "breast_hetero_host",
+                "namespace": "experiment"
+              }
+            }
+          }
+        }
+      }
+    },
+    "dsl_version": "2",
+    "initiator": {
+      "party_id": 9999,
+      "role": "guest"
+    },
+    "job_parameters": {
+      "common": {
+        "auto_retries": 1,
+        "computing_partitions": 8,
+        "task_cores": 4,
+        "task_parallelism": 2
+      }
+    },
+    "role": {
+      "arbiter": [],
+      "guest": [],
+      "host": []
+    }
+  }
+}

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.fate.portal.mapper.JobMapper">
+
+    <insert id="createNewJob" parameterType="com.tech.fate.portal.dto.JobDto">
+        insert into jobs (created_at, name, description, uuid, project_uuid, type, status, status_message,
+                          algorithm_type, algorithm_component_name,
+                          evaluate_component_name, algorithm_config, model_name, predicting_model_uuid,
+                          initiating_site_uuid, initiating_site_name,
+                          initiating_site_party_id, initiating_user, is_initiating_site, fate_job_id, fate_job_status,
+                          fate_model_id, fate_model_version,
+                          finished_at, result_json, conf, dsl, request_json)
+        values (#{createdAt}, #{name}, #{description}, #{uuid}, #{projectUuid}, #{type}, #{status}, #{statusMessage},
+                #{algorithmType}, #{algorithmComponentName},
+                #{evaluateComponentName}, #{algorithmConfig}, #{modelName}, #{predictingModelUuid},
+                #{initiatingSiteUuid}, #{initiatingSiteName},
+                #{initiatingSitePartyId}, #{initiatingUser}, #{isInitiatingSite}, #{fateJobId}, #{fateJobStatus},
+                #{fateModelId}, #{fateModelVersion},
+                #{finishedAt}, #{resultJson}, #{conf}, #{dsl}, #{requestJson})
+    </insert>
+
+    <update id="editParticipantStatus" parameterType="com.tech.fate.portal.dto.EditParticipantsStatusDto">
+        update job_participants
+        set status=#{status}
+        where job_uuid = #{jobUuid}
+          AND site_uuid = #{siteUuid}
+    </update>
+
+    <update id="editApprovedJob" parameterType="String">
+        update jobs
+        set status_message =
+                (case
+                     when ((select count(*) from job_participants where job_uuid = #{jobUuid}) =
+                           (select count(*) from job_participants where job_uuid = #{jobUuid} AND status = 2))
+                         then "待运行"
+                     else status
+                    end)
+        where uuid = #{jobUuid}
+    </update>
+
+    <update id="editJobStatus" parameterType="com.tech.fate.portal.dto.EditJobStatusDto">
+        update jobs
+        set status=#{status},
+            status_message=#{statusMessage},
+            updated_at=#{updatedAt}
+        where uuid = #{jobUuid}
+    </update>
+
+    <select id="getJobDetailInfo" parameterType="String" resultMap="QueryProjectJobResult">
+        select *
+        from jobs
+        where uuid = #{jobUuid}
+    </select>
+
+    <select id="getComponents" resultMap="getComponentsResult">
+        select *
+        from components
+    </select>
+
+    <resultMap id="getComponentsResult" type="com.tech.fate.portal.dto.ComponentDto">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="uuid" property="uuid" jdbcType="VARCHAR"/>
+        <result column="node_name" property="nodeName" jdbcType="VARCHAR"/>
+        <result column="node_group_id" property="nodeGroupId" jdbcType="VARCHAR"/>
+        <result column="node_group_name" property="nodeGroupName" jdbcType="VARCHAR"/>
+        <result column="node_version" property="nodeVersion" jdbcType="VARCHAR"/>
+        <result column="node_desc" property="nodeDesc" jdbcType="VARCHAR"/>
+        <result column="create_at" property="createAt" jdbcType="DATE"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_at" property="updateAt" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="QueryProjectJobResult" type="com.tech.fate.portal.dto.JobDto">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="deleted_at" property="deletedAt" jdbcType="TIMESTAMP"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="project_uuid" property="projectUuid" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="CLOB"/>
+        <result column="uuid" property="uuid" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="SMALLINT"/>
+        <result column="status" property="status" jdbcType="SMALLINT"/>
+        <result column="status_message" property="statusMessage" jdbcType="VARCHAR"/>
+        <result column="algorithm_type" property="algorithmType" jdbcType="VARCHAR"/>
+        <result column="algorithm_component_name" property="algorithmComponentName" jdbcType="VARCHAR"/>
+        <result column="evaluate_component_name" property="evaluateComponentName" jdbcType="VARCHAR"/>
+        <result column="algorithm_config" property="algorithmConfig" jdbcType="VARCHAR"/>
+        <result column="model_name" property="modelName" jdbcType="VARCHAR"/>
+        <result column="predicting_model_uuid" property="predictingModelUuid" jdbcType="VARCHAR"/>
+        <result column="initiating_site_name" property="initiatingSiteName" jdbcType="VARCHAR"/>
+        <result column="initiating_site_party_id" property="initiatingSitePartyId" jdbcType="BIGINT"/>
+        <result column="initiating_site_uuid" property="initiatingSiteUuid" jdbcType="VARCHAR"/>
+        <result column="initiating_user" property="initiatingUser" jdbcType="VARCHAR"/>
+        <result column="is_initiating_site" property="isInitiatingSite" jdbcType="BOOLEAN"/>
+        <result column="fate_job_id" property="fateJobId" jdbcType="VARCHAR"/>
+        <result column="fate_job_status" property="fateJobStatus" jdbcType="VARCHAR"/>
+        <result column="fate_model_id" property="fateModelId" jdbcType="VARCHAR"/>
+        <result column="fate_model_version" property="fateModelVersion" jdbcType="VARCHAR"/>
+        <result column="finished_at" property="finishedAt" jdbcType="TIMESTAMP"/>
+        <result column="result_json" property="resultJson" jdbcType="VARCHAR"/>
+        <result column="conf" property="conf" jdbcType="VARCHAR"/>
+        <result column="dsl" property="dsl" jdbcType="VARCHAR"/>
+        <result column="request_json" property="requestJson" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <update id="updateJob" parameterType="com.tech.fate.portal.dto.JobDto">
+        update jobs
+        <set>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="statusMessage != null and statusMessage != ''">
+                status_message = #{statusMessage},
+            </if>
+            <if test="fateJobId != null and fateJobId != ''">
+                fate_job_id = #{fateJobId},
+            </if>
+            updated_at = current_timestamp
+        </set>
+        where uuid = #{uuid}
+    </update>
+
+    <delete id="deleteJob">
+        delete
+        from jobs
+        where uuid =
+              #{uuid}
+    </delete>
+
+</mapper>

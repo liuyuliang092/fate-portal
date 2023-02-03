@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.fate.portal.mapper.ComponentsMapper">
+
+    <resultMap id="SysAnnouncement" type="com.tech.fate.portal.dto.ComponentsDto">
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="group_id" property="groupId" jdbcType="VARCHAR"/>
+        <result column="group_name" property="groupName" jdbcType="VARCHAR"/>
+        <result column="node_id" property="nodeId" jdbcType="VARCHAR"/>
+        <result column="node_name" property="nodeName" jdbcType="VARCHAR"/>
+        <result column="node_logo" property="nodeLogo" jdbcType="VARCHAR"/>
+        <result column="node_version" property="nodeVersion" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="node_module" property="nodeModule" jdbcType="VARCHAR"/>
+        <result column="need_settings" property="needSettings" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="components">
+        group_id
+        ,group_name,node_id,node_name,node_logo,node_version,status,node_module,need_settings
+    </sql>
+
+    <sql id="componentsParams">
+        node_id
+        ,status,param_value
+    </sql>
+
+    <sql id="componentsParamsSettings">
+        project_uuid
+        ,task_uuid,node_id,param_settings,dsl_node_id
+    </sql>
+
+    <select id="queryAlgorithmComponents" resultMap="SysAnnouncement"
+            parameterType="com.tech.fate.portal.dto.ComponentsDto">
+        select id,
+        <include refid="components"></include>
+        from components order by group_id
+    </select>
+
+    <select id="queryAlgorithmComponentsParams" resultType="com.tech.fate.portal.vo.ComponentsParams"
+            parameterType="com.tech.fate.portal.dto.ComponentsParamsDto">
+        select id,
+        <include refid="componentsParams"></include>
+        from components_params
+        where node_id = #{nodeId} and status=#{status}
+    </select>
+
+    <select id="queryAlgorithmComponentsParamsSettings"
+            resultType="com.tech.fate.portal.vo.ComponentsParamsSettings"
+            parameterType="com.tech.fate.portal.dto.ComponentsParamsSettingsDto">
+        select id,
+        <include refid="componentsParamsSettings"></include>
+        from components_params_settings
+        where project_uuid = #{projectUuid} and task_uuid=#{taskUuid}
+        <if test="dslNodeId !='' and dslNodeId != null">
+            and dsl_node_id=#{dslNodeId}
+        </if>
+    </select>
+
+    <insert id="saveAlgorithmComponentsParamsSettings"
+            parameterType="com.tech.fate.portal.vo.ComponentsParamsSettings">
+        insert into components_params_settings(
+        <include refid="componentsParamsSettings"/>
+        )
+        values(
+        #{projectUuid},
+        #{taskUuid},
+        #{nodeId},
+        #{paramSettings},
+        #{dslNodeId}
+        )
+    </insert>
+
+    <update id="updateAlgorithmComponentsParamsSettings"
+            parameterType="com.tech.fate.portal.vo.ComponentsParamsSettings">
+        update components_params_settings
+        <set>
+            param_settings = #{paramSettings}
+        </set>
+        where project_uuid = #{projectUuid} and task_uuid=#{taskUuid} and node_id=#{nodeId}
+    </update>
+
+    <delete id="deleteAlgorithmComponentsParamsSettings">
+        delete from components_params_settings where task_uuid=#{taskUuid}
+    </delete>
+
+</mapper>

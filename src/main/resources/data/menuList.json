@@ -1,0 +1,46 @@
+[{
+  "id": "1",
+  "parentId": "0",
+  "title": "首页",
+  "key": "",
+  "name": "index",
+  "component": "BasicLayout",
+  "redirect": "/dashboard/workplace",
+  "children": [
+    {
+      "id": "1-1",
+      "parentId": "1",
+      "title": "仪表盘",
+      "key": "dashboard",
+      "component": "RouteView",
+      "icon": "dashboard",
+      "children": [
+        {
+          "id": "1-1-1",
+          "parentId": "1",
+          "title": "分析页",
+          "key": "analysis",
+          "icon": "",
+          "component": "() => import('@/views/dashboard/Workplace')"
+        }
+      ]
+    },
+    {
+      "id": "1-2",
+      "parentId": "1",
+      "title": "DAG流程图",
+      "key": "/butterfly",
+      "component": "RouteView",
+      "icon": "form",
+      "children": [
+        {
+          "id": "1-2-1",
+          "parentId": "1",
+          "title": "DAG流程图",
+          "key": "/butterfly/algoDag",
+          "component": "() => import('@/views/butterfly/AlgoDag')"
+        }
+      ]
+    }
+  ]
+}]

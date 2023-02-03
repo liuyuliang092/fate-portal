@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.fate.portal.mapper.GraphMapper">
+
+    <sql id="graph">
+        project_uuid
+        ,task_uuid,graph_data
+    </sql>
+
+    <select id="queryGraphData"
+            resultType="com.tech.fate.portal.vo.GraphData">
+        select id,
+        <include refid="graph"></include>
+        from graph
+        where project_uuid = #{projectUuid} and task_uuid=#{taskUuid} and status=#{status}
+    </select>
+
+    <insert id="saveGraphData"
+            parameterType="com.tech.fate.portal.vo.GraphData">
+        insert into graph(
+        <include refid="graph"/>
+        )
+        values(
+        #{projectUuid},
+        #{taskUuid},
+        #{graphDataStr}
+        )
+    </insert>
+
+    <update id="updateGraphData"
+            parameterType="com.tech.fate.portal.vo.GraphData">
+        update graph
+        <set>
+            graph_data = #{graphDataStr},
+            updated_at = current_timestamp
+        </set>
+        where project_uuid = #{projectUuid} and task_uuid=#{taskUuid}
+    </update>
+
+</mapper>

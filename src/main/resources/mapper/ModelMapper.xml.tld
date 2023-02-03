@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.fate.portal.mapper.ModelMapper">
+
+    <insert id="handleModelCreation" parameterType="com.tech.fate.portal.dto.ModelDto">
+        insert into models(created_at,updated_at,deleted_at,uuid,name,fate_model_id,fate_model_version,project_uuid,project_name,job_uuid,job_name,component_name,
+                           component_algorithm_type,role,party_id,evaluation)
+        values(#{createdAt},#{updatedAt},#{deletedAt},#{uuid},#{name},#{fateModelId},#{fateModelVersion},#{projectUuid},#{projectName},#{jobUuid},#{jobName},#{componentName},
+               #{componentAlgorithmType},#{role},#{partyId},#{evaluation})
+    </insert>
+
+</mapper>

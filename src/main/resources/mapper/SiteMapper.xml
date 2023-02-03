@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.fate.portal.mapper.SiteMapper">
+
+    <resultMap id="siteMap" type="com.tech.fate.portal.dto.SiteDto">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="deleted_at" property="deletedAt" jdbcType="TIMESTAMP"/>
+        <result column="uuid" property="uuid" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="CLOB"/>
+        <result column="party_id" property="partyId" jdbcType="BIGINT"/>
+        <result column="external_ip" property="externalHost" jdbcType="VARCHAR"/>
+        <result column="external_port" property="externalPort" jdbcType="BIGINT"/>
+        <result column="https" property="https" jdbcType="BOOLEAN"/>
+        <result column="fml_manager_endpoint" property="fmlManagerEndpoint" jdbcType="VARCHAR"/>
+        <result column="fml_manager_server_name" property="fmlManagerServerName" jdbcType="VARCHAR"/>
+        <result column="fml_manager_connected_at" property="fmlManagerConnectedAt" jdbcType="TIMESTAMP"/>
+        <result column="fml_manager_connected" property="fmlManagerConnected" jdbcType="BOOLEAN"/>
+        <result column="fate_flow_host" property="fateFlowHost" jdbcType="VARCHAR"/>
+        <result column="fate_flow_http_port" property="fateFlowHttpPort" jdbcType="BIGINT"/>
+        <result column="fate_flow_grpc_port" property="fateFlowGrpcPort" jdbcType="BIGINT"/>
+        <result column="fate_flow_connected_at" property="fateFlowConnectedAt" jdbcType="TIMESTAMP"/>
+        <result column="fate_flow_connected" property="fateFlowConnected" jdbcType="BOOLEAN"/>
+        <result column="kubeflow_config" property="kubeflowConfig" jdbcType="VARCHAR"/>
+        <result column="kubeflow_connected_at" property="kubeflowConnectedAt" jdbcType="TIMESTAMP"/>
+        <result column="kubeflow_connected" property="kubeflowConnected" jdbcType="BOOLEAN"/>
+    </resultMap>
+
+    <select id="querySite"  resultMap="siteMap">
+        select *
+        from sites
+    </select>
+    <update id="updateSite" parameterType="com.tech.fate.portal.dto.SiteDto">
+        update sites set created_at=#{createdAt},
+                         updated_at=#{updatedAt},
+                         deleted_at=#{deletedAt},
+                         uuid=#{uuid},
+                         name=#{name},
+                         description=#{description},
+                         party_id=#{partyId},
+                         external_ip=#{externalHost},
+                         external_port=#{externalPort},
+                         https=#{https},
+                         fml_manager_endpoint=#{fmlManagerEndpoint},
+                         fml_manager_server_name=#{fmlManagerServerName},
+                         fml_manager_connected_at=#{fmlManagerConnectedAt},
+                         fml_manager_connected=#{fmlManagerConnected},
+                         fate_flow_host=#{fateFlowHost},
+                         fate_flow_http_port=#{fateFlowHttpPort},
+                         fate_flow_grpc_port=#{fateFlowGrpcPort},
+                         fate_flow_connected_at=#{fateFlowConnectedAt},
+                         fate_flow_connected=#{fateFlowConnected},
+                         kubeflow_config=#{kubeflowConfig},
+                         kubeflow_connected_at=#{kubeflowConnectedAt},
+                         kubeflow_connected=#{kubeflowConnected}
+    </update>
+
+    <insert id="addSite" parameterType="com.tech.fate.portal.dto.SiteDto">
+        insert into sites (id, created_at, updated_at, deleted_at, uuid, name, description, party_id, external_ip, external_port, https,
+                           fml_manager_endpoint, fml_manager_server_name, fml_manager_connected_at, fml_manager_connected, fate_flow_host,
+                           fate_flow_http_port, fate_flow_grpc_port, fate_flow_connected_at, fate_flow_connected, kubeflow_config,
+                           kubeflow_connected_at, kubeflow_connected) 
+        values(#{id},#{createdAt},#{updatedAt},#{deletedAt},#{uuid},#{name},#{description},#{partyId},#{externalHost},#{externalPort},#{https}
+        ,#{fmlManagerEndpoint},#{fmlManagerServerName},#{fmlManagerConnectedAt},#{fmlManagerConnected},#{fateFlowHost},#{fateFlowHttpPort}
+        ,#{fateFlowGrpcPort},#{fateFlowConnectedAt},#{fateFlowConnected},#{kubeflowConfig},#{kubeflowConnectedAt},#{kubeflowConnected})
+    </insert>
+
+</mapper>

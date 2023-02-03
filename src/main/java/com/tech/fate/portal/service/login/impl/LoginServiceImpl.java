@@ -1,0 +1,46 @@
+package com.tech.fate.portal.service.login.impl;
+
+import com.tech.fate.portal.dto.LoginResultDto;
+import com.tech.fate.portal.dto.UserInfoDto;
+import com.tech.fate.portal.service.login.LoginService;
+import com.tech.fate.portal.util.JwtUtil;
+import com.tech.fate.portal.util.RedisUtil;
+import com.tech.fate.portal.vo.LoginUser;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
+
+@Slf4j
+@Service
+public class LoginServiceImpl implements LoginService {
+
+    @Autowired
+    private RedisUtil redisUtil;
+
+    @Override
+    public LoginResultDto loginIn(LoginUser loginUser) {
+        LoginResultDto loginResultDto = new LoginResultDto();
+        //todo 临时写死admin，后续完善用户角色时修改
+        String md5pwd = DigestUtils.md5DigestAsHex("admin".getBytes());
+        if (loginUser != null && "admin".equals(loginUser.getUsername()) && md5pwd.equals(loginUser.getPassword())) {
+            loginResultDto.setSuccess(Boolean.TRUE);
+            String token = JwtUtil.sign(loginUser.getUsername(), loginUser.getPassword());
+            loginResultDto.setToken(token);
+            loginResultDto.setMessage("login success");
+//            redisUtil.set(loginUser.getUsername(), token, 30 * 60);
+        }else {
+            loginResultDto.setMessage("login failed,the username or password is incorrect");
+        }
+        return loginResultDto;
+    }
+
+    @Override
+    public LoginResultDto loginOut(LoginUser loginUser) {
+        LoginResultDto loginResultDto = new LoginResultDto();
+        //todo 后续清理缓存的登录信息时使用
+//        redisUtil.del(loginUser.getUsername());
+        loginResultDto.setSuccess(Boolean.TRUE);
+        return loginResultDto;
+    }
+}
