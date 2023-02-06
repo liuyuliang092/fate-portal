@@ -603,13 +603,16 @@ public class ProjectServiceImpl implements ProjectService {
             projectParticipantAndDataVo.setName(projectParticipantsVo.getName());
             List<ProjectParticipantAndDataVo.Options> list = Lists.newArrayList();
             List<ProjectAssociateDataVo> projectAssociateDatas = projectAssociateDataList.stream().filter(projectAssociateDataVo -> projectAssociateDataVo.getProvidingSiteUuid().equals(projectParticipantsVo.getUuid())).collect(Collectors.toList());
-            List columnList = Lists.newArrayList(localDataService.getDataColumn(projectParticipantsVo.getUuid()));
-            projectAssociateDatas.forEach(projectAssociateDataVo -> list.add(ProjectParticipantAndDataVo.Options.builder().value(projectAssociateDataVo.getDataUuid()).label(projectAssociateDataVo.getName()).columnList(columnList).build()));
+            for (ProjectAssociateDataVo projectAssociateData : projectAssociateDatas) {
+                String[] columns = localDataService.getDataColumn(projectParticipantsVo.getUuid());
+                List columnList = columns == null ? Lists.newArrayList() : Lists.newArrayList(columns);
+                list.add(ProjectParticipantAndDataVo.Options.builder().value(projectAssociateData.getDataUuid()).label(projectAssociateData.getName()).columnList(columnList).build());
+                if (columnList.size() > 0 && columnList.get(0) != null) {
+                    projectParticipantAndDataVo.setLabelTypeList(Lists.newArrayList("int", "string", "float"));
+                }
+            }
             BeanUtils.copyProperties(projectAssociateDatas, list);
             projectParticipantAndDataVo.setDataActionOptionsList(list);
-            if (columnList.size() > 0 && columnList.get(0) != null) {
-                projectParticipantAndDataVo.setLabelTypeList(Lists.newArrayList("int", "string", "float"));
-            }
             projectParticipantAndDataVos.add(projectParticipantAndDataVo);
         }
         return projectParticipantAndDataVos;

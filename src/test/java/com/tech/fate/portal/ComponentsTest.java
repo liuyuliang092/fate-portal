@@ -251,15 +251,26 @@ public class ComponentsTest {
 
     public static void main(String[] args) {
         cn.hutool.json.JSONObject jsonObject = new cn.hutool.json.JSONObject();
-        cn.hutool.json.JSONObject jsonObject2 = new cn.hutool.json.JSONObject();
-        jsonObject.set("key1", "1");
-        jsonObject.set("key2", "-1");
-        jsonObject.set("key3", "0.01");
-        jsonObject.set("key4", "null");
-        jsonObject.set("key5", "0.00001");
-        jsonObject.set("key6", null);
-        jsonObject2.set("key", "0.9");
-        jsonObject.set("key7", jsonObject2);
+        String s = "{\n" +
+                "  \"penalty\": \"L2\",\n" +
+                "  \"tol\": \"0.00001\",\n" +
+                "  \"alpha\": \"0.01\",\n" +
+                "  \"optimizer\": \"rmsprop\",\n" +
+                "  \"batch_size\": \"-1\",\n" +
+                "  \"learning_rate\": \"0.15\",\n" +
+                "  \"max_iter\": \"10\",\n" +
+                "  \"early_stop\": \"diff\",\n" +
+                "  \"init_param\": {\n" +
+                "    \"init_method\": \"random_uniform\"\n" +
+                "  },\n" +
+                "  \"cv_param\": {\n" +
+                "    \"n_splits\": \"5\",\n" +
+                "    \"random_seed\": \"103\",\n" +
+                "    \"shuffle\": false,\n" +
+                "    \"need_cv\": false\n" +
+                "  }\n" +
+                "}";
+        jsonObject = JSONUtil.parseObj(s);
         log.info("before = {}", jsonObject);
         jsonObject.forEach(json -> forEachJson(json));
         log.info("result = {}", jsonObject);
@@ -270,9 +281,8 @@ public class ComponentsTest {
             cn.hutool.json.JSONObject jsonObject = JSONUtil.parseObj(o.getValue());
             jsonObject.forEach(json -> {
                 json.setValue(transType(json.getValue()));
-                o.setValue(json);
             });
-
+            o.setValue(jsonObject);
         } else {
             o.setValue(transType(o.getValue()));
         }

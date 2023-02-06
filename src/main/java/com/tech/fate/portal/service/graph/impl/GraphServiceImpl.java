@@ -126,6 +126,7 @@ public class GraphServiceImpl implements GraphService {
                 log.info("submit jobParams = {}", jobParams);
                 String jobSubmitUrl = siteService.getFateFlowAddr() + FateFlowConstants.JOB_SUBMIT;
                 String result = HttpUtils.post(jobSubmitUrl, jobParams);
+                log.info("submit result = {}", result);
                 FateFlowResult submitResult = JSONUtil.toBean(result, FateFlowResult.class);
                 if (submitResult.getRetcode() == CommonConstant.FATE_FLOW_OK) {
                     Object data = submitResult.getData();
@@ -275,7 +276,6 @@ public class GraphServiceImpl implements GraphService {
         runConfRole.setArbiter(arbiter(guest, participantsSite, componentsInfoList));
         runtime_conf.set(JobConstants.CONF_ROLE, runConfRole);
         runtime_conf.set(JobConstants.CONF_INITIATOR, buildInitiator());
-//        runtime_conf.set(JobConstants.CONF_JOB_PARAMETERS, buildJobParameters());
         runtime_conf.set(JobConstants.CONF_COMPONENT_PARAMETERS, buildComponentParamterCommom(projectUuid, taskUuid));
         log.info("conf = {}", runtime_conf);
         return runtime_conf;
@@ -359,6 +359,10 @@ public class GraphServiceImpl implements GraphService {
             return Integer.parseInt(str);
         } else if ("null".equals(str)) {
             return null;
+        } else if ("true".equals(str)) {
+            return true;
+        } else if ("false".equals(str)) {
+            return false;
         }
         return value;
     }
@@ -368,8 +372,8 @@ public class GraphServiceImpl implements GraphService {
             cn.hutool.json.JSONObject jsonObject = JSONUtil.parseObj(o.getValue());
             jsonObject.forEach(json -> {
                 json.setValue(transType(json.getValue()));
-                o.setValue(json);
             });
+            o.setValue(jsonObject);
         } else {
             o.setValue(transType(o.getValue()));
         }
