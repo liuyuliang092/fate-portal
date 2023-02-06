@@ -299,12 +299,12 @@
         where uuid = #{uuid}
     </select>
     <insert id="addInvitation" parameterType="com.tech.fate.portal.dto.ProjectInvitationDto">
-        insert into project_invitations
-        values (#{id}, #{createdAt}, #{updatedAt}, #{deletedAt}, #{uuid}, #{projectUuid}, #{siteUuid}, #{status})
+        insert into project_invitations(uuid,project_uuid,site_uuid,status)
+        values (#{uuid}, #{projectUuid}, #{siteUuid}, #{status})
     </insert>
     <insert id="addProject" parameterType="com.tech.fate.portal.dto.ProjectDto">
-        insert into projects
-        values (#{id}, #{createdAt}, #{updatedAt}, #{deletedAt}, #{uuid}, #{name}, #{description},
+        insert into projects(uuid,name,description,auto_approval_enabled,type,status,manager,managing_site_name,managing_site_party_id,managing_site_uuid)
+        values (#{uuid}, #{name}, #{description},
                 #{autoApprovalEnabled},
                 #{type}, #{status}, #{manager}, #{managingSiteName}, #{managingSitePartyId}, #{managingSiteUuid})
     </insert>
