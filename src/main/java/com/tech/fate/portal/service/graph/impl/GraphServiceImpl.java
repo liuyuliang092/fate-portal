@@ -89,7 +89,7 @@ public class GraphServiceImpl implements GraphService {
         if (cells.size() == 0) {
             throw new Exception("please dispose dag first");
         }
-        List<ComponentsInfo> componentsInfoList = buildComponents(graphData, cells);
+        List<ComponentsInfo> componentsInfoList = buildComponents(graphData);
         List needSettingsNodeList = filterSettingsNodes(componentsInfoList);
         if (checkComponentsSettings(graphData.getProjectUuid(), graphData.getTaskUuid(), needSettingsNodeList.size())) {
             graphData.setStatus(0);
@@ -172,6 +172,9 @@ public class GraphServiceImpl implements GraphService {
                     });
                     countDownLatch.await();
                 }
+                if (!CollectionUtils.isEmpty(componentsStatusList)) {
+                    updateComponentsStatus(queryComponentsStatus.getProjectUuid(), queryComponentsStatus.getTaskUuid(), componentsStatusList);
+                }
             }
         } catch (Exception e) {
             log.error("query job components status error,projectId = {},JobId = {}", queryComponentsStatus.getProjectUuid(), queryComponentsStatus.getTaskUuid(), e);
@@ -179,20 +182,44 @@ public class GraphServiceImpl implements GraphService {
         return componentsStatusList;
     }
 
+    private void updateComponentsStatus(String projectUuid, String taskUuid, List<ComponentsStatus> componentsStatusList) {
+        GraphData graphData = this.queryGraphData(projectUuid, taskUuid);
+        String data = graphData.getGraphDataStr();
+        JSONObject graph = JSONUtil.parseObj(data);
+        List<JSONObject> cells = graph.get(GraphConstants.CELLS, List.class);
+        cells.forEach(cell -> {
+            if (GraphConstants.SHAPE_NODE.equals(cell.get(GraphConstants.SHAPE))) {
+                for (ComponentsStatus componentsStatus : componentsStatusList) {
+                    if (cell.getStr("id").equals(componentsStatus.getId())) {
+                        JSONObject nodeData = JSONUtil.parseObj(cell.getStr("data"));
+                        nodeData.set("status", componentsStatus.getStatus());
+                        cell.set("data", nodeData);
+                    }
+                }
+            }
+        });
+        graph.set(GraphConstants.CELLS, cells);
+        graphData.setGraphData(graph);
+        graphMapper.updateGraphData(graphData);
+    }
+
     private String buildJobParam(GraphData graphData) {
         JSONObject jobParam = new JSONObject();
         String data = graphData.getGraphDataStr();
         JSONObject graph = JSONUtil.parseObj(data);
         List cells = graph.get(GraphConstants.CELLS, List.class);
-        List<EdgeInfo> edgeInfoList = buildEdges(graphData, cells);
-        List<ComponentsInfo> componentsInfoList = buildComponents(graphData, cells);
+        List<EdgeInfo> edgeInfoList = buildEdges(graphData);
+        List<ComponentsInfo> componentsInfoList = buildComponents(graphData);
         jobParam.set(JobConstants.JOB_DSL, buildJobDslParam(edgeInfoList, componentsInfoList));
         jobParam.set(JobConstants.JOB_CONF, buildJobConfParam(edgeInfoList, componentsInfoList, graphData.getProjectUuid(), graphData.getTaskUuid()));
         return JSONUtil.toJsonStr(jobParam);
     }
 
-    private List buildEdges(GraphData graphData, List cells) {
+    private List buildEdges(GraphData graphData) {
         List<EdgeInfo> edgeInfoList = Lists.newArrayList();
+        String data = graphData.getGraphDataStr();
+        JSONObject graph = JSONUtil.parseObj(data);
+        List cells = graph.get(GraphConstants.CELLS, List.class);
         cells.forEach(cell -> {
             if (GraphConstants.SHAPE_EDGE.equals(((JSONObject) cell).get(GraphConstants.SHAPE))) {
                 EdgeInfo edgeInfo = JSONUtil.toBean(JSONUtil.toJsonStr(cell), EdgeInfo.class);
@@ -202,8 +229,11 @@ public class GraphServiceImpl implements GraphService {
         return edgeInfoList;
     }
 
-    private List buildComponents(GraphData graphData, List cells) {
+    private List buildComponents(GraphData graphData) {
         List<ComponentsInfo> componentsInfoList = Lists.newArrayList();
+        String data = graphData.getGraphDataStr();
+        JSONObject graph = JSONUtil.parseObj(data);
+        List cells = graph.get(GraphConstants.CELLS, List.class);
         cells.forEach(cell -> {
             if (GraphConstants.SHAPE_NODE.equals(((JSONObject) cell).get(GraphConstants.SHAPE))) {
                 ComponentsInfo componentsInfo = JSONUtil.toBean(JSONUtil.toJsonStr(cell), ComponentsInfo.class);

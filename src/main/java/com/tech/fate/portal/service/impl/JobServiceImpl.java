@@ -383,7 +383,6 @@ public class JobServiceImpl implements JobService {
             params.set("role", role);
             params.set("party_id", partyId);
             params.set("component_name", componentsInfo.getDslNodeId());
-            log.info("query component status rquest = {}", params);
             String result = HttpUtils.post(jobTaskQueryUrl, JSONUtil.toJsonStr(params));
             if (StringUtils.isNotBlank(result)) {
                 FateFlowResult fateFlowResult = JSONUtil.toBean(result, FateFlowResult.class);
