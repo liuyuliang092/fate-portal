@@ -237,7 +237,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<InvitationRequestToFML.AssociatedDataBean> associatedDataBeanList = Lists.newArrayList();
         for (ProjectDataDto projectDataDto : projectDataDtoList) {
             InvitationRequestToFML.AssociatedDataBean associatedDataBean = new InvitationRequestToFML.AssociatedDataBean();
-            associatedDataBean.setCreationTime(projectDataDto.getCreationTime().toString());
+            associatedDataBean.setCreationTime(DateUtils.formatDateTimeForGo());
             associatedDataBean.setDataUuid(projectDataDto.getDataUuid());
             associatedDataBean.setDescription(projectDataDto.getDescription());
             associatedDataBean.setName(projectDataDto.getName());
@@ -246,7 +246,7 @@ public class ProjectServiceImpl implements ProjectService {
             associatedDataBean.setSiteUuid(projectDataDto.getSiteUuid());
             associatedDataBean.setTableName(projectDataDto.getTableName());
             associatedDataBean.setTableNamespace(projectDataDto.getTableNamespace());
-            associatedDataBean.setUpdateTime(projectDataDto.getUpdateTime().toString());
+            associatedDataBean.setUpdateTime(DateUtils.formatDateTimeForGo());
             associatedDataBeanList.add(associatedDataBean);
         }
         invitationRequestToFML.setAssociatedData(associatedDataBeanList);
@@ -255,7 +255,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new NullPointerException();
         }
         invitationRequestToFML.setProjectAutoApprovalEnabled(projectDto.isAutoApprovalEnabled());
-        invitationRequestToFML.setProjectCreationTime(DateUtil.format(new Date(projectDto.getCreatedAt().getTime()), "yyyy-MM-dd'T'HH:mm:ss") + "Z");
+        invitationRequestToFML.setProjectCreationTime(DateUtils.formatDateTimeForGo());
         invitationRequestToFML.setProjectDescription(projectDto.getDescription());
         invitationRequestToFML.setProjectManager(projectDto.getManager());
         invitationRequestToFML.setProjectManagingSiteName(projectDto.getManagingSiteName());
