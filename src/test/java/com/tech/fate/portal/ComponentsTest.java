@@ -250,6 +250,35 @@ public class ComponentsTest {
     }
 
     public static void main(String[] args) {
+//       t();
+       replace();
+    }
+
+    private static void replace(){
+        String reader = ResourceUtil.readUtf8Str("data/confReader.json");
+        reader = reader.replace("@name", "name").replace("@namespace", "namespace");
+        log.info("after = {}",reader);
+    }
+
+    private static void forEachJson(Map.Entry o) {
+        if (JSONUtil.isTypeJSON(JSONUtil.toJsonStr(o.getValue()))) {
+            cn.hutool.json.JSONObject jsonObject = JSONUtil.parseObj(o.getValue());
+            jsonObject.forEach(json -> {
+                json.setValue(transType(json.getValue()));
+            });
+            o.setValue(jsonObject);
+        } else {
+            o.setValue(transType(o.getValue()));
+        }
+    }
+
+    private static void test(cn.hutool.json.JSONObject jsonObject){
+        jsonObject.forEach(json -> {
+
+        });
+    }
+
+    private static void t(){
         cn.hutool.json.JSONObject jsonObject = new cn.hutool.json.JSONObject();
         String s = "{\n" +
                 "  \"penalty\": \"L2\",\n" +
@@ -272,25 +301,8 @@ public class ComponentsTest {
                 "}";
         jsonObject = JSONUtil.parseObj(s);
         log.info("before = {}", jsonObject);
+        log.info("key = {}",jsonObject.keySet());
         jsonObject.forEach(json -> forEachJson(json));
         log.info("result = {}", jsonObject);
-    }
-
-    private static void forEachJson(Map.Entry o) {
-        if (JSONUtil.isTypeJSON(JSONUtil.toJsonStr(o.getValue()))) {
-            cn.hutool.json.JSONObject jsonObject = JSONUtil.parseObj(o.getValue());
-            jsonObject.forEach(json -> {
-                json.setValue(transType(json.getValue()));
-            });
-            o.setValue(jsonObject);
-        } else {
-            o.setValue(transType(o.getValue()));
-        }
-    }
-
-    private static void test(cn.hutool.json.JSONObject jsonObject){
-        jsonObject.forEach(json -> {
-
-        });
     }
 }

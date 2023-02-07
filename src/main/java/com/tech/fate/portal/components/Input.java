@@ -36,5 +36,7 @@ public class Input {
     @Builder
     public static class InputData {
         public List<String> data;
+        public List<String> train_data;
+        public List<String> isometric_model;
     }
 }

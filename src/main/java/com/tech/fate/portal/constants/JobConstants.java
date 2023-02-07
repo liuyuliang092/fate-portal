@@ -29,11 +29,15 @@ public class JobConstants {
 
     public final static String DSL_DATA = "data";
 
+    public final static String DSL_MODEL = "model";
+
     public final static String CONF_ROLE = "role";
 
     public final static String READER_0 = "reader_0";
 
     public final static String READER = "reader";
+
+    public final static String hetero_lr = "hetero_lr";
 
     public final static String DATA_TRANSFORM = "data_transform";
 

@@ -69,8 +69,6 @@ public class GraphServiceImpl implements GraphService {
     @Autowired
     private ComponentsService componentsService;
     @Autowired
-    private LocalDataService localDataService;
-    @Autowired
     private JobService jobService;
     @Autowired
     private GraphMapper graphMapper;
@@ -139,7 +137,6 @@ public class GraphServiceImpl implements GraphService {
                     return CheckResultStatus.SUCCESS.getStatus();
                 } else {
                     jobDto.setStatus(JobStatus.UNKNOWN.getStatus());
-//                    jobDto.setStatusMessage(submitResult.getRetmsg());
                     this.updateJob(jobDto);
                     return CheckResultStatus.FAILED.getStatus();
                 }
@@ -158,7 +155,7 @@ public class GraphServiceImpl implements GraphService {
             List<ComponentsInfo> nodeList = queryComponentsStatus.getNodeList();
             if (!CollectionUtils.isEmpty(nodeList)) {
                 CountDownLatch countDownLatch = new CountDownLatch(nodeList.size());
-                JobDetailVo jobDetailVo = jobService.getJobDetailInfo(queryComponentsStatus.getTaskUuid(), null);
+                JobDto jobDetailVo = jobService.queryJob(queryComponentsStatus.getTaskUuid());
                 List<Integer> partyIds = site();
                 if (jobDetailVo != null && !CollectionUtils.isEmpty(partyIds)) {
                     nodeList.forEach(node -> {
@@ -173,7 +170,6 @@ public class GraphServiceImpl implements GraphService {
                             componentsStatusList.add(componentsStatus);
                         }
                     });
-//                nodeList.forEach(node -> jobService.queryComponentStatus(node, countDownLatch, componentsStatusList));
                     countDownLatch.await();
                 }
             }
@@ -222,23 +218,29 @@ public class GraphServiceImpl implements GraphService {
         JSONObject components = new JSONObject();
         componentsInfoList.forEach(componentsInfo -> {
             List<String> inputData = Lists.newArrayList();
+            List<String> isometric_model = Lists.newArrayList();
             List<String> outputdata = Lists.newArrayList(JobConstants.DSL_DATA);
             List<String> modelData = Lists.newArrayList("model");
             JSONObject component = new JSONObject();
-            if (JobConstants.READER.equals(componentsInfo.getData().getNodeId())) {
-//                component.set(JobConstants.NEED_DEYLOY, Boolean.TRUE);
-//                String reader = ResourceUtil.readUtf8Str("data/dslReader.json");
-//                components.set(componentsInfo.getDslNodeId(), JSONUtil.parseObj(reader));
-//                inputData.add(componentsInfo.getDslNodeId() + "." + JobConstants.DSL_DATA);
-            } else {
+            if (!JobConstants.READER.equals(componentsInfo.getData().getNodeId())) {
                 List<EdgeInfo> edgeInfos = edgeInfoList.stream().filter(edgeInfo -> edgeInfo.getTarget().cell.equals(componentsInfo.getId())).collect(Collectors.toList());
                 if (!CollectionUtils.isEmpty(edgeInfos)) {
                     ComponentsInfo matchedComponent = findPreComponent(componentsInfoList, edgeInfos.get(0));
                     if (matchedComponent != null) {
                         inputData.add(matchedComponent.getDslNodeId() + "." + JobConstants.DSL_DATA);
+                        if (JobConstants.hetero_feature_selection.equals(componentsInfo.getData().getNodeId())) {
+                            isometric_model.add(matchedComponent.getDslNodeId() + "." + JobConstants.DSL_MODEL);
+                        }
                     }
                 }
-                Input input = Input.builder().data(Input.InputData.builder().data(inputData).build()).build();
+                Input input;
+                if (JobConstants.hetero_feature_selection.equals(componentsInfo.getData().getNodeId())) {
+                    input = Input.builder().data(Input.InputData.builder().data(inputData).isometric_model(isometric_model).build()).build();
+                } else if (JobConstants.hetero_lr.equals(componentsInfo.getData().getNodeId())) {
+                    input = Input.builder().data(Input.InputData.builder().train_data(inputData).build()).build();
+                } else {
+                    input = Input.builder().data(Input.InputData.builder().data(inputData).build()).build();
+                }
                 component.set(JobConstants.DSL_INPUT, input);
             }
             OutPut outPut;
@@ -385,16 +387,16 @@ public class GraphServiceImpl implements GraphService {
         Integer hostIndex = 0;
         Integer guestIndex = 0;
         try {
-            String reader = ResourceUtil.readUtf8Str("data/confReader.json");
             List<JSONObject> paramSettingList = JSONUtil.toList(componentsParamsSettings.getParamSettings(), JSONObject.class);
             SiteVo siteVo = siteService.querySite();
             for (JSONObject paramSetting : paramSettingList) {
+                String reader = ResourceUtil.readUtf8Str("data/confReader.json");
                 String siteUuid = null;
                 String data_uuid = paramSetting.getStr("data_uuid");
                 List<ProjectAssociateDataVo> projectDataDtoList = projectService.projectAssociateDataList(projectUuid);
                 Optional<ProjectAssociateDataVo> projectData = projectDataDtoList.stream().filter(projectDataDto -> data_uuid.equals(projectDataDto.getDataUuid())).findFirst();
                 if (projectData.isPresent()) {
-                    reader = reader.replace("@name", projectData.get().getTableName()).replace("@namespace", projectData.get().getTableNamespace());
+                    reader = reader.replace("@name", projectData.get().getTableName()).replace("@space", projectData.get().getTableNamespace());
                     siteUuid = projectData.get().getProvidingSiteUuid();
                 }
                 if (siteVo.getUuid().equals(siteUuid)) {
@@ -422,12 +424,6 @@ public class GraphServiceImpl implements GraphService {
             }
             boolean withLabel = 0 == paramSettings.getInt("with_label") ? true : false;
             dataTransform.set("with_label", withLabel);
-//            dataTransform.set("with_label", Boolean.FALSE);
-//            if (StringUtils.isNotBlank(paramSettings.getStr("label_name"))) {
-//                dataTransform.set("label_name", paramSettings.getStr("label_name"));
-//                dataTransform.set("label_type", paramSettings.getStr("label_type"));
-//                dataTransform.set("with_label", Boolean.TRUE);
-//            }
             reader = JSONUtil.parseObj(readerFromModule);
             String index = dslNodeId.split("_")[1];
             role.set("data_transform_" + index, dataTransform);
@@ -437,10 +433,6 @@ public class GraphServiceImpl implements GraphService {
             log.error("【run graph】 build runtime_conf role error", e);
             throw new RuntimeException(e);
         }
-    }
-
-    private void replace(String readerFromModule, ProjectDataDto projectDataDto) {
-        readerFromModule = readerFromModule.replace("@name", projectDataDto.getTableName()).replace("@namespace", projectDataDto.getTableNamespace());
     }
 
     private boolean checkComponentsSettings(String projectUuid, String taskUuid, int componentsNums) {

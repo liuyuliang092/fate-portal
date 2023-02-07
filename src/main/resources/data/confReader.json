@@ -1,6 +1,6 @@
 {
   "table": {
     "name": @name,
-    "namespace": @namespace
+    "namespace": @space
   }
 }
