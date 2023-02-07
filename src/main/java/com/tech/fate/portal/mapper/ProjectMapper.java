@@ -14,12 +14,6 @@ import org.apache.ibatis.annotations.Param;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * 新建项目接口
- *
- * @author: 刘欣怡
- * @date: 2022年07月06日 9:59
- */
 @Mapper
 public interface ProjectMapper {
     /**
@@ -47,7 +41,7 @@ public interface ProjectMapper {
      * @return ：List<ProjectsVo>
      * @throws SQLException;
      */
-    List<ProjectsVo> queryInvitedProjectsList(Page<ProjectsVo> page, @Param("siteUuid") String siteUuid, @Param("") Integer status) throws SQLException;
+    List<ProjectsVo> queryInvitedProjectsList(Page<ProjectsVo> page, @Param("siteUuid") String siteUuid, @Param("status") Integer status) throws SQLException;
 
     /**
      * 功能：查询项目参与者列表

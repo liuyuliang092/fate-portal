@@ -98,7 +98,7 @@
           AND a.status = 6
     </select>
 
-    <select id="queryInvitedProjectsList" parameterType="String" resultMap="QueryProjectResult">
+    <select id="queryInvitedProjectsList" resultMap="QueryProjectResult">
         select a.created_at,
                c.description,
                c.manager,
@@ -110,6 +110,7 @@
         from project_invitations AS a,
              projects AS c
         where a.site_uuid = #{siteUuid}
+          and a.status=#{status}
           AND a.project_uuid = c.uuid
     </select>
 

@@ -15,10 +15,8 @@
  */
 package com.tech.fate.portal.controller.api;
 
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.util.TokenUtils;
@@ -65,7 +63,8 @@ public class ProjectApiController {
         try {
             queryOwnProjectsVo = projectService.queryProjectList(pageNo, pageSize);
         } catch (Exception e) {
-            return ApiResponse.fail("查询项目失败");
+            log.error("query project list error,message = ", e);
+            return ApiResponse.fail("failed");
         }
         return ApiResponse.ok("success", queryOwnProjectsVo);
     }
@@ -73,7 +72,6 @@ public class ProjectApiController {
     @GetMapping("/project/{uuid}/participant")
     public ApiResponse queryProjectParticipantList(@PathVariable String uuid,
                                                    @RequestParam(required = false) boolean all) {
-
         if (all) {
             List<ParticipantVo> page;
             try {
@@ -87,7 +85,7 @@ public class ProjectApiController {
             try {
                 projectParticipantsVoList = projectService.projectParticipantList(uuid);
             } catch (Exception e) {
-                return ApiResponse.fail("查询失败");
+                return ApiResponse.fail("failed");
             }
             return ApiResponse.ok("success", projectParticipantsVoList);
         }
@@ -100,7 +98,7 @@ public class ProjectApiController {
         try {
             projectDetailVo = projectService.getProjectDetailInfo(uuid);
         } catch (Exception e) {
-            return ApiResponse.fail("查询失败");
+            return ApiResponse.fail("failed");
         }
         return ApiResponse.ok("success", projectDetailVo);
     }
@@ -113,7 +111,7 @@ public class ProjectApiController {
         try {
             pageList = projectService.getProjectJobList(pageList, uuid);
         } catch (Exception e) {
-            return ApiResponse.fail("查询失败");
+            return ApiResponse.fail("failed");
         }
         return ApiResponse.ok("success", pageList);
     }
@@ -137,7 +135,7 @@ public class ProjectApiController {
             return projectService.associateDataToProject(uuid, request);
         } catch (Exception e) {
             log.error("associate local data to project error", e);
-            return ApiResponse.fail("关联失败");
+            return ApiResponse.fail("failed");
         }
     }
 
@@ -147,7 +145,7 @@ public class ProjectApiController {
         try {
             apiResponse = projectService.joinInvitedProject(uuid);
         } catch (Exception e) {
-            return ApiResponse.fail("加入失败");
+            return ApiResponse.fail("failed");
         }
 
         return apiResponse;
@@ -158,7 +156,7 @@ public class ProjectApiController {
         try {
             projectService.invitationAcceptResponseFml(uuid);
         } catch (Exception e) {
-            return ApiResponse.fail("接受失败");
+            return ApiResponse.fail("failed");
         }
 
         return ApiResponse.ok("success");
@@ -169,7 +167,7 @@ public class ProjectApiController {
         try {
             projectService.invitationRejectResponseFml(uuid);
         } catch (Exception e) {
-            return ApiResponse.fail("接收失败");
+            return ApiResponse.fail("failed");
         }
 
         return ApiResponse.ok("success");
@@ -181,7 +179,7 @@ public class ProjectApiController {
             List<RemoteDataRequestDto> dataList = JSONObject.parseArray(data, RemoteDataRequestDto.class);
             projectService.associateRemoteData(uuid, dataList);
         } catch (SQLException e) {
-            return ApiResponse.fail("关联失败");
+            return ApiResponse.fail("failed");
         }
 
         return ApiResponse.ok("success");
@@ -195,7 +193,7 @@ public class ProjectApiController {
         try {
             projectLocalDataVo = projectService.getProjectLocalData(uuid, pageNo, pageSize);
         } catch (Exception e) {
-            return ApiResponse.fail("查询失败");
+            return ApiResponse.fail("failed");
         }
         return ApiResponse.ok("success", projectLocalDataVo);
 
@@ -210,7 +208,6 @@ public class ProjectApiController {
             log.error("query project participants and data list error,project uuid = {}", uuid, e);
             return ApiResponse.fail("query project participants and data list error");
         }
-        log.info("project participants and data list = {}", JSONUtil.toJsonStr(projectParticipantAndDataVos));
         return ApiResponse.ok("success", projectParticipantAndDataVos);
     }
 

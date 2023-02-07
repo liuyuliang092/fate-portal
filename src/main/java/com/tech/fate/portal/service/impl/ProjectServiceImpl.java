@@ -227,10 +227,8 @@ public class ProjectServiceImpl implements ProjectService {
     public void invite(String projectUuid, InvitationInfo invitationInfo) throws Exception {
         assert invitationInfo != null;
         String participantUuid = UUID.fastUUID().toString().replaceAll("-", "");
-
         StringBuilder url = new StringBuilder();
-        String fmlUrl = siteService.getFmlAddr();
-        url.append(fmlUrl)
+        url.append(siteService.getFmlAddr())
                 .append(FmlManagerConstants.FML_PROJECT_INVITATION);
         List<ProjectDataDto> projectDataDtoList = projectMapper.queryProjectDataByUuid(projectUuid);
         InvitationRequestToFML invitationRequestToFML = new InvitationRequestToFML();
@@ -358,14 +356,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ParticipantVo> queryProjectParticipantListByFML(String uuid) throws Exception {
-        String fmlUrl = siteService.getFmlAddr();
-        if (StringUtils.isBlank(fmlUrl)) {
-            throw new FatePortalException("fml_manage host is invalid");
-        }
-        String url = fmlUrl + FmlManagerConstants.FML_SITE;
+        String url = siteService.getFmlAddr() + FmlManagerConstants.FML_SITE;
         String result = HttpUtils.get(url);
         List<ParticipantVo> participantVoList = new ArrayList<>();
-        List<ProjectParticipantFromFMLDto> projectParticipantFromFMLDtoList = null;
+        List<ProjectParticipantFromFMLDto> projectParticipantFromFMLDtoList;
         if (StringUtils.isNotBlank(result)) {
             ApiResponse apiResponse = JSONUtil.toBean(result, ApiResponse.class);
             if (apiResponse.getCode() != 0) {
@@ -385,7 +379,6 @@ public class ProjectServiceImpl implements ProjectService {
                     participantVo.setSiteDescription(projectParticipantFromFMLDto.getDescription());
                     participantVo.setSiteName(projectParticipantFromFMLDto.getName());
                     participantVo.setSitePartyId(projectParticipantFromFMLDto.getPartyId());
-//                    participantVo.setStatus(ProjectParticipantStatusUnknown.getStatus());
                     participantVo.setSiteUuid(projectParticipantFromFMLDto.getUuid());
                     if (projectParticipantFromFMLDto.getUuid().equals(siteService.querySite().getUuid())) {
                         participantVo.setCurrentSite(true);
@@ -548,12 +541,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectMapper.addInvitation(projectInvitationDto);
         if (projectMapper.queryProjectByUuid(processInvitationBean.getUuid()) == null) {
             ProjectDto projectDto = new ProjectDto();
-
             projectDto.setAutoApprovalEnabled(processInvitationBean.isProjectAutoApprovalEnabled());
-
             projectDto.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-
-
             projectDto.setDescription(processInvitationBean.getProjectDescription());
             projectDto.setManager(processInvitationBean.getProjectManager());
             projectDto.setManagingSiteName(processInvitationBean.getProjectManagingSiteName());
@@ -692,7 +681,6 @@ public class ProjectServiceImpl implements ProjectService {
             invitedProjectsDto.setName(pd.getProjectName());
             invitedProjectsDto.setUuid(pd.getProjectUuid());
             invitedProjectsDto.setManagedByThisSite(managedByThisSite(pd.getManagingSiteUuid()));
-
             invitedProjectsDtoList.add(invitedProjectsDto);
         }
         page.setRecords(invitedProjectsDtoList);
