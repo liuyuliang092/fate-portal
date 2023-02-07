@@ -235,7 +235,7 @@ public class GraphServiceImpl implements GraphService {
                 }
                 Input input;
                 if (JobConstants.hetero_feature_selection.equals(componentsInfo.getData().getNodeId())) {
-                    input = Input.builder().data(Input.InputData.builder().data(inputData).isometric_model(isometric_model).build()).build();
+                    input = Input.builder().data(Input.InputData.builder().data(inputData).build()).isometric_model(isometric_model).build();
                 } else if (JobConstants.hetero_lr.equals(componentsInfo.getData().getNodeId())) {
                     input = Input.builder().data(Input.InputData.builder().train_data(inputData).build()).build();
                 } else {

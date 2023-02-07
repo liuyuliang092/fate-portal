@@ -57,9 +57,6 @@ public class ComponentsServiceImpl implements ComponentsService {
         componentsParamsDto.setNodeId(nodeId);
         componentsParamsDto.setStatus(CommonConstant.STATUS_NORMAL);
         ComponentsParams componentsParams = componentsMapper.queryAlgorithmComponentsParams(componentsParamsDto);
-        if (componentsParams != null) {
-//            componentsParams.setParamValueJson(JSONObject.parse(componentsParams.getParamValue()));
-        }
         return componentsParams;
     }
 
@@ -70,7 +67,6 @@ public class ComponentsServiceImpl implements ComponentsService {
         componentsParamsSettingsDto.setTaskUuid(taskUuid);
         componentsParamsSettingsDto.setDslNodeId(dslNodeId);
         List<ComponentsParamsSettings> componentsParamsSettings = componentsMapper.queryAlgorithmComponentsParamsSettings(componentsParamsSettingsDto);
-        log.info("result in impl = {}", componentsParamsSettings);
         return componentsParamsSettings;
     }
 
