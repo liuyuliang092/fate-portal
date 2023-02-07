@@ -126,6 +126,7 @@
              project_participants AS b
         where b.site_uuid = #{siteUuid}
           AND b.project_uuid = a.uuid
+        ORDER BY created_at desc
     </select>
 
     <select id="queryProjectParticipantList" parameterType="String" resultMap="QueryParticipantResult">
@@ -168,6 +169,7 @@
                a.uuid
         from jobs AS a
         where a.project_uuid = #{uuid}
+        ORDER BY created_at desc
     </select>
 
     <resultMap id="QueryProjectJobResult" type="com.tech.fate.portal.vo.ProjectJobVo">
