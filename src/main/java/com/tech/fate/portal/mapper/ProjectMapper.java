@@ -8,7 +8,6 @@ import com.tech.fate.portal.vo.ProjectDetailVo;
 import com.tech.fate.portal.vo.ProjectJobVo;
 import com.tech.fate.portal.vo.ProjectsVo;
 import org.apache.ibatis.annotations.Mapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.SQLException;
@@ -50,7 +49,7 @@ public interface ProjectMapper {
      * @return ：List<ProjectsVo>
      * @throws SQLException;
      */
-    List<ProjectsVo> queryJoinedProjectsList(Page<ProjectsVo> page, @Param("siteUuid") String siteUuid) throws SQLException;
+    Page<ProjectsVo> queryJoinedProjectsList(Page<ProjectsVo> page, @Param("siteUuid") String siteUuid) throws SQLException;
 
     /**
      * 功能：查询项目参与者列表

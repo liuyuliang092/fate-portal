@@ -9,9 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author 刘欣怡
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

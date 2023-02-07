@@ -15,9 +15,10 @@
  */
 package com.tech.fate.portal.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.Hutool;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -25,7 +26,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.tech.fate.portal.common.FmlManagerResp;
-import com.tech.fate.portal.common.status.JobStatus;
 import com.tech.fate.portal.constants.CommonConstant;
 import com.tech.fate.portal.constants.FmlManagerConstants;
 import com.tech.fate.portal.constants.SiteConstants;
@@ -72,14 +72,6 @@ import static com.tech.fate.portal.common.type.ProjectDataType.ProjectDataTypeUn
 import static com.tech.fate.portal.common.type.ProjectType.ProjectTypeLocal;
 import static com.tech.fate.portal.common.type.ProjectType.ProjectTypeRemote;
 import static com.tech.fate.portal.common.type.SiteRoleType.CurrentSite;
-import static com.tech.fate.portal.common.type.SiteRoleType.OtherSite;
-
-/**
- * 功能描述
- *
- * @author: scott
- * @date: 2022年07月06日 15:10
- */
 
 @Service
 @Slf4j
@@ -138,7 +130,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public QueryOwnProjectsVo queryProjectList(int pageNo, int pageSize) throws Exception {
-
         SiteVo siteDto = siteService.querySite();
         QueryOwnProjectsVo queryOwnProjectsVo = new QueryOwnProjectsVo();
         if (siteDto != null) {
@@ -643,13 +634,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     public Page<ClosedProjectsDto> queryClosedProjectsList(Page<ClosedProjectsDto> page, String siteUuid) throws Exception {
         List<ClosedProjectsDto> closedProjectsList = new ArrayList<ClosedProjectsDto>();
-
         Page<ProjectsVo> page1 = new Page<>(page.getCurrent(), page.getSize());
         List<ProjectsVo> projectsVoList = projectMapper.queryClosedProjectsList(page1, siteUuid);
-
         for (ProjectsVo pd : projectsVoList) {
             ClosedProjectsDto closedProjectsDto = new ClosedProjectsDto();
-
             closedProjectsDto.setStatus(pd.getProjectStatus());
             closedProjectsDto.setCreateAt(pd.getCreateDate());
             closedProjectsDto.setDescription(pd.getProjectDescription());
@@ -688,30 +676,29 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     public Page<JoinedProjectsDto> queryJoinedProjectsList(Page<JoinedProjectsDto> pageJoinedList, String siteUuid) throws Exception {
-        List<JoinedProjectsDto> allProjectsList = allProjectsList(pageJoinedList, siteUuid);
-        List<JoinedProjectsDto> joinedProjectsDtoList = allProjectsList.stream().filter(joinedProjectsDto -> !joinedProjectsDto.isManagedByThisSite()).collect(Collectors.toList());
+        Page<JoinedProjectsDto> allProjectsList = allProjectsList(pageJoinedList, siteUuid);
+        List<JoinedProjectsDto> joinedProjectsDtoList = allProjectsList.getRecords().stream().filter(joinedProjectsDto -> !joinedProjectsDto.isManagedByThisSite()).collect(Collectors.toList());
         pageJoinedList.setRecords(joinedProjectsDtoList);
         return pageJoinedList;
     }
 
     public Page<JoinedProjectsDto> queryMyProjectsList(Page<JoinedProjectsDto> pageJoinedList, String siteUuid) throws Exception {
-        List<JoinedProjectsDto> joinedProjectsDtoList = allProjectsList(pageJoinedList, siteUuid);
-        List<JoinedProjectsDto> myProjectsDtoList = joinedProjectsDtoList.stream().filter(JoinedProjectsDto::isManagedByThisSite).collect(Collectors.toList());
+        Page<JoinedProjectsDto> joinedProjectsDtoList = allProjectsList(pageJoinedList, siteUuid);
+        List<JoinedProjectsDto> myProjectsDtoList = joinedProjectsDtoList.getRecords().stream().filter(JoinedProjectsDto::isManagedByThisSite).collect(Collectors.toList());
         pageJoinedList.setRecords(myProjectsDtoList);
         return pageJoinedList;
     }
 
     public Page<JoinedProjectsDto> queryAllProjectsPageList(Page<JoinedProjectsDto> pageJoinedList, String siteUuid) throws Exception {
-        List<JoinedProjectsDto> joinedProjectsDtoList = allProjectsList(pageJoinedList, siteUuid);
-        pageJoinedList.setRecords(joinedProjectsDtoList);
-        return pageJoinedList;
+        Page<JoinedProjectsDto> joinedProjectsDtoList = allProjectsList(pageJoinedList, siteUuid);
+        return joinedProjectsDtoList;
     }
 
-    public List<JoinedProjectsDto> allProjectsList(Page<JoinedProjectsDto> pageJoinedList, String siteUuid) throws Exception {
+    public Page<JoinedProjectsDto> allProjectsList(Page<JoinedProjectsDto> pageJoinedList, String siteUuid) throws Exception {
         List<JoinedProjectsDto> allProjectsDtoList = Lists.newArrayList();
-        Page<ProjectsVo> page1 = new Page<>(pageJoinedList.getCurrent(), pageJoinedList.getSize());
-        List<ProjectsVo> projectsVoList = projectMapper.queryJoinedProjectsList(page1, siteUuid);
-        for (ProjectsVo pd : projectsVoList) {
+        Page<ProjectsVo> page = new Page<>(pageJoinedList.getCurrent(), pageJoinedList.getSize());
+        Page<ProjectsVo> projectsVoList = projectMapper.queryJoinedProjectsList(page, siteUuid);
+        for (ProjectsVo pd : projectsVoList.getRecords()) {
             JoinedProjectsDto joinedProjectsDto = new JoinedProjectsDto();
             joinedProjectsDto.setCreationAt(pd.getCreateDate());
             joinedProjectsDto.setDescription(pd.getProjectDescription());
@@ -724,7 +711,9 @@ public class ProjectServiceImpl implements ProjectService {
             joinedProjectsDto.setProjectParticipantsNum(projectMapper.queryProjectParticipantList(pd.getProjectUuid()).size());
             allProjectsDtoList.add(joinedProjectsDto);
         }
-        return allProjectsDtoList;
+        pageJoinedList = (Page)ObjectUtil.cloneByStream(projectsVoList);
+        pageJoinedList.setRecords(allProjectsDtoList);
+        return pageJoinedList;
     }
 
     public boolean managedByThisSite(String siteUuid) throws Exception {
