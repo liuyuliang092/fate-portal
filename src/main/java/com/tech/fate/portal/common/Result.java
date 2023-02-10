@@ -19,15 +19,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tech.fate.portal.constants.CommonConstant;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- *   接口返回数据格式
- */
 @Data
-@ApiModel(value="接口返回对象", description="接口返回对象")
+@AllArgsConstructor
+@Builder
 public class Result<T> implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -8,6 +8,7 @@ import com.tech.fate.portal.util.RedisUtil;
 import com.tech.fate.portal.vo.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -15,21 +16,25 @@ import org.springframework.util.DigestUtils;
 @Service
 public class LoginServiceImpl implements LoginService {
 
+    @Value("${login.name}")
+    private String userName;
+    @Value("${login.password}")
+    private String password;
+
     @Autowired
     private RedisUtil redisUtil;
 
     @Override
     public LoginResultDto loginIn(LoginUser loginUser) {
         LoginResultDto loginResultDto = new LoginResultDto();
-        //todo 临时写死admin，后续完善用户角色时修改
-        String md5pwd = DigestUtils.md5DigestAsHex("admin".getBytes());
-        if (loginUser != null && "admin".equals(loginUser.getUsername()) && md5pwd.equals(loginUser.getPassword())) {
+        String md5pwd = DigestUtils.md5DigestAsHex(password.getBytes());
+        if (loginUser != null && userName.equals(loginUser.getUsername()) && md5pwd.equals(loginUser.getPassword())) {
             loginResultDto.setSuccess(Boolean.TRUE);
             String token = JwtUtil.sign(loginUser.getUsername(), loginUser.getPassword());
             loginResultDto.setToken(token);
             loginResultDto.setMessage("login success");
 //            redisUtil.set(loginUser.getUsername(), token, 30 * 60);
-        }else {
+        } else {
             loginResultDto.setMessage("login failed,the username or password is incorrect");
         }
         return loginResultDto;

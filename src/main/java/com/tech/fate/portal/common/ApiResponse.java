@@ -54,4 +54,11 @@ public class ApiResponse {
         return result;
     }
 
+    public static ApiResponse unauthorized(String message) {
+        ApiResponse result = new ApiResponse();
+        result.setCode(401);
+        result.setMessage(message);
+        return result;
+    }
+
 }

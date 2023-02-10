@@ -26,24 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 /**
- * @Author Scott
- * @Date 2018-07-12 14:23
- * @Desc JWT工具类
+ * @Author Marco Polo
  **/
 public class JwtUtil {
 
-    /**
-     * Token有效期为1小时（Token在reids中缓存时间为两倍）
-     */
     public static final long EXPIRE_TIME = 60 * 60 * 1000;
 
-    /**
-     * 校验token是否正确
-     *
-     * @param token  密钥
-     * @param secret 用户的密码
-     * @return 是否正确
-     */
     public static boolean verify(String token, String username, String secret) {
         try {
             // 根据密码生成JWT效验器
@@ -57,11 +45,6 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * 获得token中的信息无需secret解密也能获得
-     *
-     * @return token中包含的用户名
-     */
     public static String getUsername(String token) {
         try {
             DecodedJWT jwt = JWT.decode(token);
@@ -71,13 +54,6 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * 生成签名,5min后过期
-     *
-     * @param username 用户名
-     * @param secret   用户的密码
-     * @return 加密的token
-     */
     public static String sign(String username, String secret) {
         Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
         Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -86,13 +62,6 @@ public class JwtUtil {
 
     }
 
-    /**
-     * 根据request中的token获取用户账号
-     *
-     * @param request
-     * @return
-     * @throws FatePortalException
-     */
     public static String getUserNameByToken(HttpServletRequest request) throws FatePortalException {
         String accessToken = request.getHeader("X-Access-Token");
         String username = getUsername(accessToken);
