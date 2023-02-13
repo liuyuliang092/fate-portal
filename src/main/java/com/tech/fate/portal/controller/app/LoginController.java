@@ -19,6 +19,7 @@ import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.dto.LoginResultDto;
 import com.tech.fate.portal.dto.UserInfoDto;
 import com.tech.fate.portal.service.login.LoginService;
+import com.tech.fate.portal.util.TokenUtils;
 import com.tech.fate.portal.vo.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api")
@@ -42,17 +45,17 @@ public class LoginController {
             return ApiResponse.ok("login success", resultDto);
         }
         return ApiResponse.fail("login failed", resultDto);
-
     }
 
     @PostMapping("/auth/logout")
-    public ApiResponse logOut(LoginUser loginUser) {
+    public ApiResponse logOut(HttpServletRequest request) {
+        LoginUser loginUser = new LoginUser();
+        String userName = TokenUtils.getLoginUserName(request);
+        loginUser.setUsername(userName);
         LoginResultDto resultDto = loginService.loginOut(loginUser);
         if (resultDto.isSuccess()) {
             return ApiResponse.ok("logout success");
         }
         return ApiResponse.fail("logout failed");
     }
-
-
 }

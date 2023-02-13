@@ -45,7 +45,7 @@ public class AuthenticationFilter implements Filter {
     private String password;
 
 
-    private final List<String> excludeUrl = Lists.newArrayList("/api/auth/login");
+    private final List<String> excludeUrl = Lists.newArrayList("/api/auth/login","/api/auth/logout");
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Filter.super.init(filterConfig);
