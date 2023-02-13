@@ -18,8 +18,6 @@ package com.tech.fate.portal.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.tech.fate.portal.common.ApiResponse;
-import com.tech.fate.portal.common.Result;
-import com.tech.fate.portal.constants.GlobalConstants;
 import com.tech.fate.portal.util.JwtUtil;
 import com.tech.fate.portal.util.TokenUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +43,9 @@ public class AuthenticationFilter implements Filter {
     private String password;
 
 
-    private final List<String> excludeUrl = Lists.newArrayList("/api/auth/login","/api/auth/logout");
+    private final List<String> excludeUrlList = Lists.newArrayList("/api/auth/login", "/api/auth/logout", "/status");
+    private final String excludeUrl = "/internal";
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Filter.super.init(filterConfig);
@@ -56,7 +56,7 @@ public class AuthenticationFilter implements Filter {
         String md5pwd = DigestUtils.md5DigestAsHex(password.getBytes());
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String path = httpServletRequest.getRequestURI();
-        if(excludeUrl.contains(path)){
+        if (excludeUrlList.contains(path) || path.contains(excludeUrl)) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
