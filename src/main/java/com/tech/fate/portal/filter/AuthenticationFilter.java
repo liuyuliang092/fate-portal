@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.util.JwtUtil;
 import com.tech.fate.portal.util.TokenUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -37,13 +38,14 @@ import java.util.List;
  **/
 @Component
 @WebFilter(urlPatterns = {"/api/**"}, filterName = "AuthenticationFilter")
+@Slf4j
 public class AuthenticationFilter implements Filter {
 
     @Value("${login.password}")
     private String password;
 
 
-    private final List<String> excludeUrlList = Lists.newArrayList("/api/auth/login", "/api/auth/logout", "/status");
+    private final List<String> excludeUrlList = Lists.newArrayList("/api/auth/login", "/api/auth/logout", "/api/v1/status");
     private final String excludeUrl = "/internal";
 
     @Override
@@ -68,6 +70,7 @@ public class AuthenticationFilter implements Filter {
                 return;
             }
         }
+        log.info("UNAUTHORIZED url = {}",path);
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
         httpResponse.setCharacterEncoding("UTF-8");
         httpResponse.setContentType("application/json; charset=utf-8");
