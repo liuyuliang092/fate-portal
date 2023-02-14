@@ -175,6 +175,7 @@ public class LocalDataServiceImpl implements LocalDataService {
                     .append(tableName);
             InputStream inputStream = Files.newInputStream(file.toPath());
             String result = HttpUtils.uploadFile(url.toString(), file.getName(), inputStream);
+            log.info("[fate-portal] upload data to fate result = {}", result);
             if (StringUtils.isNotBlank(result)) {
                 FateFlowResult apiResponse = JSONUtil.toBean(result, FateFlowResult.class);
                 if (apiResponse.getRetcode() == 0) {
@@ -225,14 +226,10 @@ public class LocalDataServiceImpl implements LocalDataService {
         try {
             Path path = Paths.get(uploadFolder + hash);
             Path pathCreate = Files.createDirectories(path);
-//            File file = new File(uploadFolder + "\\" + hash);
-//            if (!file.exists()) {
-//                file.mkdir();
-//            }
             randomAccessFile = new RandomAccessFile(pathCreate + "\\" + fileName + "." + type + seq, "rw");
             randomAccessFile.write(bytes);
         } catch (IOException e) {
-            log.error("Failed to save split file,fileNme = {},seq = {}", fileName, seq, e);
+            log.error("[fate-portal] Failed to save split file,fileNme = {},seq = {}", fileName, seq, e);
             return ApiResponse.fail("failed");
         } finally {
             if (randomAccessFile != null) {
@@ -244,10 +241,6 @@ public class LocalDataServiceImpl implements LocalDataService {
 
     @Override
     public ApiResponse mergeFile(String fileName, String type, String hash, String name, String description) throws IOException {
-//        File fileDir = new File(uploadFolder + hash);
-//        if (!fileDir.exists()) {
-//            return ApiResponse.fail("file merge failed");
-//        }
         Path path = Paths.get(uploadFolder + hash);
         Path pathCreate = Files.createDirectories(path);
         FileChannel out = null;
@@ -272,7 +265,7 @@ public class LocalDataServiceImpl implements LocalDataService {
             File file = new File(pathCreate + "\\" + fileName + "." + type);
             this.uploadData(file, name, description, hash);
         } catch (Exception e) {
-            log.error("upload data to fate error,", e);
+            log.error("[fate-portal] failed to merge file,filename = {},hash = {},", fileName, hash, e);
             return ApiResponse.fail("failed");
         } finally {
             try {
