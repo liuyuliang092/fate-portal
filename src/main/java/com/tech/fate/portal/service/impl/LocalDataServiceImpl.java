@@ -15,6 +15,7 @@
  */
 package com.tech.fate.portal.service.impl;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.json.JSONUtil;
@@ -23,7 +24,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tech.fate.portal.common.FateFlowResult;
 import com.tech.fate.portal.constants.FateFlowConstants;
+import com.tech.fate.portal.model.Chunk;
 import com.tech.fate.portal.service.SiteService;
+import com.tech.fate.portal.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import com.tech.fate.portal.common.ApiResponse;
@@ -41,8 +44,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -59,6 +65,9 @@ import static com.tech.fate.portal.common.HttpCommon.FATEFlowBaseUrl;
 @Service
 @Slf4j
 public class LocalDataServiceImpl implements LocalDataService {
+
+    @Value("${upload.folder}")
+    private String uploadFolder;
     @Autowired
     private LocalDataMapper localDataMapper;
     @Autowired
@@ -104,7 +113,7 @@ public class LocalDataServiceImpl implements LocalDataService {
     }
 
     @Override
-    public int saveData(MultipartFile file, String data, String name, String description) throws Exception {
+    public int saveData(InputStream inputStream, String fileName, String data, String name, String description) throws Exception {
         LocalDataDto localDataDto = new LocalDataDto();
         localDataDto.setCreatedAt(DateUtils.formatDateTime());
         localDataDto.setUpdatedAt(DateUtils.formatDateTime());
@@ -112,12 +121,11 @@ public class LocalDataServiceImpl implements LocalDataService {
         localDataDto.setUuid(UUID.fastUUID().toString().replaceAll("-", ""));
         localDataDto.setName(name);
         localDataDto.setDescription(description);
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String headLine = bufferedReader.readLine();
         Assert.notBlank(headLine);
         StringBuilder preview = new StringBuilder();
         preview.append(headLine);
-
         if (headLine != null) {
             localDataDto.setColumn(headLine);
         }
@@ -138,45 +146,53 @@ public class LocalDataServiceImpl implements LocalDataService {
         localDataDto.setPreview(preview.toString());
         localDataDto.setJobId(rs.getString("job_id"));
         localDataDto.setJobConf(rs.getString("runtime_conf_path"));
-
-        localDataDto.setLocalFilePath(file.getOriginalFilename());
+        localDataDto.setLocalFilePath(fileName);
         return localDataMapper.addLocalData(localDataDto);
     }
 
     @Override
-    public void uploadData(MultipartFile file, String name, String description) throws Exception {
-
+    public void uploadData(File file, String name, String description, String hash) throws Exception {
         StringBuilder url = new StringBuilder();
         int head = 1;
         int partition = 16;
         String idDelimiter = ",";
-        String namespace = DateUtils.date2Str(new SimpleDateFormat("yyyyMMdd"));
-        String tableName = UUID.fastUUID().toString().replaceAll("-", "");
-        String fateFlowUrl = siteService.getFateFlowAddr();
-        url.append(fateFlowUrl)
-                .append(FateFlowConstants.DATA_UPLOAD)
-                .append("?")
-                .append("head=")
-                .append(head)
-                .append("&id_delimiter=")
-                .append(idDelimiter)
-                .append("&partition=")
-                .append(partition)
-                .append("&namespace=")
-                .append(namespace)
-                .append("&table_name=")
-                .append(tableName);
-
-        String result = HttpUtils.uploadFile(url.toString(), file);
-        if (StringUtils.isNotBlank(result)) {
-            FateFlowResult apiResponse = JSONUtil.toBean(result, FateFlowResult.class);
-            if (apiResponse.getRetcode() != 0) {
-                throw new FMLException();
+        try {
+            String namespace = DateUtils.date2Str(new SimpleDateFormat("yyyyMMdd"));
+            String tableName = UUID.fastUUID().toString().replaceAll("-", "");
+            String fateFlowUrl = siteService.getFateFlowAddr();
+            url.append(fateFlowUrl)
+                    .append(FateFlowConstants.DATA_UPLOAD)
+                    .append("?")
+                    .append("head=")
+                    .append(head)
+                    .append("&id_delimiter=")
+                    .append(idDelimiter)
+                    .append("&partition=")
+                    .append(partition)
+                    .append("&namespace=")
+                    .append(namespace)
+                    .append("&table_name=")
+                    .append(tableName);
+            InputStream inputStream = Files.newInputStream(file.toPath());
+            String result = HttpUtils.uploadFile(url.toString(), file.getName(), inputStream);
+            if (StringUtils.isNotBlank(result)) {
+                FateFlowResult apiResponse = JSONUtil.toBean(result, FateFlowResult.class);
+                if (apiResponse.getRetcode() == 0) {
+                    String data = JSONUtil.toJsonStr(apiResponse.getData());
+                    inputStream = Files.newInputStream(file.toPath());
+                    saveData(inputStream, file.getName(), data, name, description);
+                    return;
+                }
             }
-            String data = JSONUtil.toJsonStr(apiResponse.getData());
-            saveData(file, data, name, description);
-        } else {
             throw new FMLException();
+        } catch (Exception e) {
+            throw new Exception(e);
+        } finally {
+            if (hash != null) {
+                Path path = Paths.get(uploadFolder + hash);
+                Path pathCreate = Files.createDirectories(path);
+                FileUtil.del(pathCreate);
+            }
         }
     }
 
@@ -204,15 +220,84 @@ public class LocalDataServiceImpl implements LocalDataService {
     }
 
     @Override
+    public ApiResponse saveFile(byte[] bytes, String hash, String fileName, Integer seq, String type) throws Exception {
+        RandomAccessFile randomAccessFile = null;
+        try {
+            Path path = Paths.get(uploadFolder + hash);
+            Path pathCreate = Files.createDirectories(path);
+//            File file = new File(uploadFolder + "\\" + hash);
+//            if (!file.exists()) {
+//                file.mkdir();
+//            }
+            randomAccessFile = new RandomAccessFile(pathCreate + "\\" + fileName + "." + type + seq, "rw");
+            randomAccessFile.write(bytes);
+        } catch (IOException e) {
+            log.error("Failed to save split file,fileNme = {},seq = {}", fileName, seq, e);
+            return ApiResponse.fail("failed");
+        } finally {
+            if (randomAccessFile != null) {
+                randomAccessFile.close();
+            }
+        }
+        return ApiResponse.ok("success");
+    }
+
+    @Override
+    public ApiResponse mergeFile(String fileName, String type, String hash, String name, String description) throws IOException {
+//        File fileDir = new File(uploadFolder + hash);
+//        if (!fileDir.exists()) {
+//            return ApiResponse.fail("file merge failed");
+//        }
+        Path path = Paths.get(uploadFolder + hash);
+        Path pathCreate = Files.createDirectories(path);
+        FileChannel out = null;
+        FileChannel in = null;
+        try {
+            in = new RandomAccessFile(pathCreate + "\\" + fileName + "." + type, "rw").getChannel();
+            int index = 1;
+            long start = 0;
+            while (true) {
+                String fileSlice = pathCreate + "\\" + fileName + "." + type + index;
+                if (!new File(fileSlice).exists()) {
+                    break;
+                }
+                out = new RandomAccessFile(fileSlice, "r").getChannel();
+                in.transferFrom(out, start, start + out.size());
+                start += out.size();
+                out.close();
+                out = null;
+                index++;
+            }
+            in.close();
+            File file = new File(pathCreate + "\\" + fileName + "." + type);
+            this.uploadData(file, name, description, hash);
+        } catch (Exception e) {
+            log.error("upload data to fate error,", e);
+            return ApiResponse.fail("failed");
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return ApiResponse.ok("success");
+    }
+
+    @Override
     public void deleteData(String uuid) throws Exception {
         StringBuilder url = new StringBuilder();
-        String fateFlowUrl = siteService.getFateFlowAddr();
-        url.append(fateFlowUrl)
+        url.append(siteService.getFateFlowAddr())
                 .append(FateFlowConstants.TABLE_DELETE);
         cn.hutool.json.JSONObject para = new cn.hutool.json.JSONObject();
         LocalDataDto localDataDto = localDataMapper.queryLocalDataByUuid(uuid);
-        para.putOnce("table_name", localDataDto.getTableName());
-        para.putOnce("namespace", localDataDto.getTableNamespace());
+        para.set("table_name", localDataDto.getTableName());
+        para.set("namespace", localDataDto.getTableNamespace());
         String parameter = JSONUtil.toJsonStr(para);
         String result = HttpUtils.post(url.toString(), parameter);
         if (StringUtils.isNotBlank(result)) {

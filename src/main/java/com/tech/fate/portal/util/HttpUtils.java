@@ -30,6 +30,7 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 
 @Slf4j
@@ -79,7 +80,7 @@ public class HttpUtils {
         return result;
     }
 
-    public static String uploadFile(String url, MultipartFile file) {
+    public static String uploadFile(String url, String fileName, InputStream inputStream) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response = null;
         String resultString = "";
@@ -89,7 +90,7 @@ public class HttpUtils {
             MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
             multipartEntityBuilder.setMode(HttpMultipartMode.RFC6532);   // 处理中文文件名称乱码
             multipartEntityBuilder.setCharset(Charset.forName("UTF-8"));
-            multipartEntityBuilder.addBinaryBody("file", file.getInputStream(), org.apache.http.entity.ContentType.MULTIPART_FORM_DATA, file.getName());
+            multipartEntityBuilder.addBinaryBody("file", inputStream, org.apache.http.entity.ContentType.MULTIPART_FORM_DATA, fileName);
             HttpEntity httpEntity = multipartEntityBuilder.build();
             httpPost.setEntity(httpEntity);
             // 执行http请求

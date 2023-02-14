@@ -17,14 +17,16 @@ package com.tech.fate.portal.common;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class ApiResponse {
+public class ApiResponse<T> implements Serializable {
 
     private Integer code;
 
     private String message;
 
-    private Object data;
+    private T data;
 
     public static ApiResponse ok() {
         return ok("success", null);

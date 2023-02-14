@@ -17,6 +17,9 @@ package com.tech.fate.portal.controller.app;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tech.fate.portal.model.Chunk;
+import com.tech.fate.portal.model.FileMergeInfo;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.service.LocalDataService;
@@ -25,6 +28,9 @@ import com.tech.fate.portal.vo.LocalDataVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.util.Objects;
 
 
 /**
@@ -65,7 +71,7 @@ public class LocalDataAppController {
     @PostMapping("/data")
     public ApiResponse uploadData(@RequestPart("file") MultipartFile file, @RequestParam("name") String name, @RequestParam("description") String description) {
         try {
-            localDataService.uploadData(file, name, description);
+            localDataService.uploadData(new File(Objects.requireNonNull(file.getOriginalFilename())), name, description, null);
         } catch (Exception e) {
             log.error("upload data error", e);
             return ApiResponse.fail("upload failed");
@@ -103,5 +109,35 @@ public class LocalDataAppController {
             return ApiResponse.fail("download failed");
         }
         return ApiResponse.ok("success");
+    }
+
+    @PostMapping("/data/uploadSlice")
+    public ApiResponse uploadSlice(@RequestParam("file") MultipartFile file,
+                                   @RequestParam("hash") String hash,
+                                   @RequestParam("filename") String filename,
+                                   @RequestParam("seq") Integer seq,
+                                   @RequestParam("type") String type) {
+        try {
+            return localDataService.saveFile(file.getBytes(), hash, filename, seq, type);
+        } catch (Exception e) {
+            log.error("upload slice error", e);
+            return ApiResponse.fail("failed");
+        }
+    }
+
+    @PostMapping("/data/merge")
+    public ApiResponse mergeFile(@RequestBody FileMergeInfo fileMergeInfo) {
+        try {
+            return localDataService.mergeFile(fileMergeInfo.getFileName(), fileMergeInfo.getType(), fileMergeInfo.getHash(), fileMergeInfo.getName(), fileMergeInfo.getDescription());
+        } catch (Exception e) {
+            log.error("merge file error", e);
+            return ApiResponse.fail("failed");
+        }
+    }
+
+    @GetMapping("/data/checkChunk")
+    public ApiResponse checkChunk(@RequestParam String hash) {
+        log.info("hash = {}", hash);
+        return ApiResponse.fail("failed");
     }
 }
