@@ -23,6 +23,7 @@ import com.tech.fate.portal.util.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 
@@ -39,6 +40,7 @@ import java.util.List;
 @Component
 @WebFilter(urlPatterns = {"/api/**"}, filterName = "AuthenticationFilter")
 @Slf4j
+@Order(1)
 public class AuthenticationFilter implements Filter {
 
     @Value("${login.password}")
