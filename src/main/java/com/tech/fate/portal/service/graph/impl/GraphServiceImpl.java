@@ -48,6 +48,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -203,7 +205,7 @@ public class GraphServiceImpl implements GraphService {
         graphMapper.updateGraphData(graphData);
     }
 
-    private String buildJobParam(GraphData graphData) {
+    private String buildJobParam(GraphData graphData) throws Exception {
         JSONObject jobParam = new JSONObject();
         String data = graphData.getGraphDataStr();
         JSONObject graph = JSONUtil.parseObj(data);
@@ -296,7 +298,7 @@ public class GraphServiceImpl implements GraphService {
         return null;
     }
 
-    private JSONObject buildJobConfParam(List<EdgeInfo> edgeInfoList, List<ComponentsInfo> componentsInfoList, String projectUuid, String taskUuid) {
+    private JSONObject buildJobConfParam(List<EdgeInfo> edgeInfoList, List<ComponentsInfo> componentsInfoList, String projectUuid, String taskUuid) throws Exception {
         JSONObject runtime_conf = new JSONObject();
         runtime_conf.set(JobConstants.DSL_VERSION, 2);
         RunConfRole runConfRole = new RunConfRole();
@@ -484,10 +486,10 @@ public class GraphServiceImpl implements GraphService {
         return componentsInfoList.stream().filter(componentsInfo -> nodeList.contains(componentsInfo.getData().getNodeId())).collect(Collectors.toList());
     }
 
-    private List<Integer> arbiter(List<Integer> guest, List<Integer> host, List<ComponentsInfo> componentsInfoList) {
+    private List<Integer> arbiter(List<Integer> guest, List<Integer> host, List<ComponentsInfo> componentsInfoList) throws Exception {
         List<Integer> arbiter = Lists.newArrayList();
-        Random random = new Random();
-        int index = random.nextInt(host.size());
+        SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+        int index = secureRandom.nextInt(host.size());
         List list = componentsInfoList.stream().filter(componentsInfo -> NodeConstants.arbiter_must_be_host_node.contains(componentsInfo.getData().getNodeId())).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(list)) {
             arbiter.add(index == host.size() ? host.get(index - 1) : host.get(index));
