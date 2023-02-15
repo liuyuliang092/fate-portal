@@ -5,6 +5,7 @@ import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.vo.SiteConnectInfo;
 import com.tech.fate.portal.vo.SiteVo;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 
@@ -36,5 +37,5 @@ public interface SiteService {
 
     String getFateFlowAddr();
 
-    ApiResponse checkFateFlowHealth();
+    ApiResponse checkFateFlowHealth() throws Exception;
 }

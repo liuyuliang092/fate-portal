@@ -170,7 +170,7 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
-    public ApiResponse checkFateFlowHealth() {
+    public ApiResponse checkFateFlowHealth() throws Exception {
         Socket socket = new Socket();
         boolean isConnected = Boolean.FALSE;
 
@@ -183,11 +183,16 @@ public class SiteServiceImpl implements SiteService {
                 return ApiResponse.fail("please save site info first");
             }
         } catch (Exception e) {
-            log.error("telnet fate-flow serve error", e);
+            log.error("telnet fate-flow server error", e);
+            throw new Exception();
+        }finally {
+            if(socket != null){
+                socket.close();
+            }
         }
         if (isConnected) {
-            return ApiResponse.ok("fate-flow serve is valid");
+            return ApiResponse.ok("fate-flow server is valid");
         }
-        return ApiResponse.fail("fate-flow serve is invalid");
+        return ApiResponse.fail("fate-flow server is invalid");
     }
 }

@@ -25,6 +25,8 @@ import com.tech.fate.portal.vo.SiteVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 /**
  * @author Iwi
  */
@@ -78,6 +80,10 @@ public class SiteAppController {
 
     @GetMapping("/checkFateFlowHealth")
     public ApiResponse checkFateFlowHealth() {
-        return siteService.checkFateFlowHealth();
+        try {
+            return siteService.checkFateFlowHealth();
+        } catch (Exception e) {
+            return ApiResponse.fail("telnet fate-flow server error");
+        }
     }
 }
