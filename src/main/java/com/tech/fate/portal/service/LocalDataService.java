@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.dto.LocalDataDto;
 import com.tech.fate.portal.model.Chunk;
+import com.tech.fate.portal.model.FileInfo;
+import com.tech.fate.portal.model.FileSliceInfo;
 import com.tech.fate.portal.vo.DetailedInfoOfDataVo;
 import com.tech.fate.portal.vo.LocalDataVo;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,7 +55,7 @@ public interface LocalDataService {
      * @param description
      * @throws Exception
      */
-    void uploadData(File file, String name, String description,String hash) throws Exception;
+    void uploadData(File file, String name, String description, String hash) throws Exception;
 
     /**
      * 通过uuid获得详细信息
@@ -75,7 +77,7 @@ public interface LocalDataService {
      * @throws SQLException
      * @throws IOException
      */
-    int saveData(InputStream inputStream,String fileName, String result, String name, String description) throws Exception;
+    int saveData(InputStream inputStream, String fileName, String result, String name, String description) throws Exception;
 
     void deleteData(String uuid) throws Exception;
 
@@ -83,5 +85,9 @@ public interface LocalDataService {
 
     ApiResponse saveFile(byte[] bytes, String hash, String fileName, Integer seq, String type) throws Exception;
 
-    ApiResponse mergeFile(String fileName,String type,String hash,String name,String description) throws IOException;
+    ApiResponse mergeFile(String fileName, String type, String hash, String name, String description) throws IOException;
+
+    ApiResponse checkChunk(FileInfo fileInfo);
+
+    void uploadDataFast(String name, String description, String hash) throws Exception;
 }

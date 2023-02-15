@@ -15,9 +15,12 @@
  */
 package com.tech.fate.portal.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -25,6 +28,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tech.fate.portal.common.FateFlowResult;
 import com.tech.fate.portal.constants.FateFlowConstants;
 import com.tech.fate.portal.model.Chunk;
+import com.tech.fate.portal.model.FileInfo;
+import com.tech.fate.portal.model.FileSliceInfo;
 import com.tech.fate.portal.service.SiteService;
 import com.tech.fate.portal.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +44,11 @@ import com.tech.fate.portal.service.LocalDataService;
 import com.tech.fate.portal.util.HttpUtils;
 import com.tech.fate.portal.vo.DetailedInfoOfDataVo;
 import com.tech.fate.portal.vo.LocalDataVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -51,6 +58,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +117,6 @@ public class LocalDataServiceImpl implements LocalDataService {
             return null;
         }
         return new DetailedInfoOfDataVo(localDataDto);
-
     }
 
     @Override
@@ -189,11 +196,11 @@ public class LocalDataServiceImpl implements LocalDataService {
         } catch (Exception e) {
             throw new Exception(e);
         } finally {
-            if (hash != null) {
-                Path path = Paths.get(uploadFolder + hash);
-                Path pathCreate = Files.createDirectories(path);
-                FileUtil.del(pathCreate);
-            }
+//            if (hash != null) {
+//                Path path = Paths.get(uploadFolder + hash);
+//                Path pathCreate = Files.createDirectories(path);
+//                FileUtil.del(pathCreate);
+//            }
         }
     }
 
@@ -224,10 +231,13 @@ public class LocalDataServiceImpl implements LocalDataService {
     public ApiResponse saveFile(byte[] bytes, String hash, String fileName, Integer seq, String type) throws Exception {
         RandomAccessFile randomAccessFile = null;
         try {
-            Path path = Paths.get(uploadFolder + hash);
-            Path pathCreate = Files.createDirectories(path);
-            randomAccessFile = new RandomAccessFile(pathCreate + "\\" + fileName + "." + type + seq, "rw");
-            randomAccessFile.write(bytes);
+            if (!this.checkFileSlice(hash, seq)) {
+                Path path = Paths.get(uploadFolder + hash);
+                Path pathCreate = Files.createDirectories(path);
+                randomAccessFile = new RandomAccessFile(pathCreate + "\\" + fileName + "." + type + seq, "rw");
+                randomAccessFile.write(bytes);
+                this.saveFileSlice(hash, fileName, seq, type);
+            }
         } catch (IOException e) {
             log.error("[fate-portal] Failed to save split file,fileNme = {},seq = {}", fileName, seq, e);
             return ApiResponse.fail("failed");
@@ -263,6 +273,7 @@ public class LocalDataServiceImpl implements LocalDataService {
             }
             in.close();
             File file = new File(pathCreate + "\\" + fileName + "." + type);
+            this.saveFile(hash, fileName, pathCreate + "\\" + fileName + "." + type);
             this.uploadData(file, name, description, hash);
         } catch (Exception e) {
             log.error("[fate-portal] failed to merge file,filename = {},hash = {},", fileName, hash, e);
@@ -280,6 +291,35 @@ public class LocalDataServiceImpl implements LocalDataService {
             }
         }
         return ApiResponse.ok("success");
+    }
+
+    @Override
+    public ApiResponse checkChunk(FileInfo fileInfo) {
+        FileInfo file = localDataMapper.queryFileInfo(fileInfo);
+        if (file == null || StringUtils.isBlank(file.getFileName())) {
+            return ApiResponse.fail("There is no fragment file, start re-upload");
+        }
+        return ApiResponse.ok("fast upload success,watting upload to fate");
+    }
+
+    @Override
+    public void uploadDataFast(String name, String description, String hash) throws Exception {
+        try {
+            FileInfo params = new FileInfo();
+            params.setFileHash(hash);
+            FileInfo fileInfo = localDataMapper.queryFileInfo(params);
+            if (fileInfo != null) {
+                String localFullFilePath = fileInfo.getFilePath();
+                File file = new File(localFullFilePath);
+                this.uploadData(file, name, description, hash);
+            }
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    private List<FileSliceInfo> queryFileSliceList(FileSliceInfo fileSliceInfo) {
+        return localDataMapper.queryFileSliceList(fileSliceInfo);
     }
 
     @Override
@@ -305,5 +345,35 @@ public class LocalDataServiceImpl implements LocalDataService {
 
     public void deleteLocalData(String uuid) throws Exception {
         localDataMapper.deleteLocalDataByUuid(uuid);
+    }
+
+    private void saveFileSlice(String hash, String fileName, Integer seq, String type) {
+        FileSliceInfo fileSliceInfo = new FileSliceInfo();
+        fileSliceInfo.setFileName(fileName);
+        fileSliceInfo.setFileType(type);
+        fileSliceInfo.setUuid(IdUtil.simpleUUID());
+        fileSliceInfo.setFileHash(hash);
+        fileSliceInfo.setFileSeq(seq);
+        localDataMapper.saveFileSlice(fileSliceInfo);
+    }
+
+    private void saveFile(String hash, String fileName, String filePath) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setFileName(fileName);
+        fileInfo.setUuid(IdUtil.simpleUUID());
+        fileInfo.setFileHash(hash);
+        fileInfo.setFilePath(filePath);
+        localDataMapper.saveFile(fileInfo);
+    }
+
+    private boolean checkFileSlice(String hash, Integer seq) {
+        FileSliceInfo fileSliceInfo = new FileSliceInfo();
+        fileSliceInfo.setFileHash(hash);
+        fileSliceInfo.setFileSeq(seq);
+        List<FileSliceInfo> fileSliceInfoList = this.queryFileSliceList(fileSliceInfo);
+        if (CollUtil.isEmpty(fileSliceInfoList)) {
+            return false;
+        }
+        return true;
     }
 }

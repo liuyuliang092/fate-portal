@@ -3,9 +3,12 @@ package com.tech.fate.portal.mapper;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.tech.fate.portal.dto.LocalDataDto;
+import com.tech.fate.portal.model.FileInfo;
+import com.tech.fate.portal.model.FileSliceInfo;
 import org.springframework.lang.Nullable;
 
 import java.sql.SQLException;
+import java.util.List;
 
 
 /**
@@ -14,22 +17,19 @@ import java.sql.SQLException;
  */
 public interface LocalDataMapper {
 
+    IPage<LocalDataDto> queryLocalDataDtoList(@Nullable IPage<LocalDataDto> localDataDtoPage) throws SQLException;
 
-    /**
-     * 查找所有本地数据详细信息
-     * @return List<LocalDataDto>
-     * @throws SQLException
-     */
-    IPage<LocalDataDto> queryLocalDataDtoList(@Nullable IPage<LocalDataDto> localDataDtoPage)throws SQLException;
-    /**
-     * 根据uuid查找本地数据
-     * @param uuid
-     * @return List<LocalDataDto>
-     * @throws SQLException
-     */
     LocalDataDto queryLocalDataByUuid(String uuid);
 
-    int addLocalData(LocalDataDto localDataDto)throws SQLException;
+    int addLocalData(LocalDataDto localDataDto) throws SQLException;
 
-    int deleteLocalDataByUuid(String uuid)throws SQLException;
+    int deleteLocalDataByUuid(String uuid) throws SQLException;
+
+    int saveFileSlice(FileSliceInfo fileSliceInfo);
+
+    List<FileSliceInfo> queryFileSliceList(FileSliceInfo fileSliceInfo);
+
+    int saveFile(FileInfo fileInfo);
+
+    FileInfo queryFileInfo(FileInfo fileInfo);
 }

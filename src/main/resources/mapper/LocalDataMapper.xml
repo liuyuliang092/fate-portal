@@ -25,7 +25,7 @@
     </resultMap>
 
 
-    <select id="queryLocalDataDtoList"  resultMap="localDataMap">
+    <select id="queryLocalDataDtoList" resultMap="localDataMap">
         select *
         from local_data
     </select>
@@ -33,19 +33,51 @@
     <select id="queryLocalDataByUuid" parameterType="String" resultMap="localDataMap">
         select *
         from local_data
-        where uuid=#{uuid}
+        where uuid = #{uuid}
     </select>
 
     <insert id="addLocalData" parameterType="com.tech.fate.portal.dto.LocalDataDto">
         insert into local_data
-        (created_at,updated_at,deleted_at,uuid,`name`,description,`column`,`table_name`,table_namespace,
-        `count`,features,preview,job_id,job_conf,local_file_path)
-        values (#{createdAt},#{updatedAt},#{deletedAt},#{uuid},#{name},#{description},#{column},#{tableName},
-        #{tableNamespace},#{count},#{features},#{preview},#{jobId},#{jobConf},#{localFilePath})
+        (created_at, updated_at, deleted_at, uuid, `name`, description, `column`, `table_name`, table_namespace,
+         `count`, features, preview, job_id, job_conf, local_file_path)
+        values (#{createdAt}, #{updatedAt}, #{deletedAt}, #{uuid}, #{name}, #{description}, #{column}, #{tableName},
+                #{tableNamespace}, #{count}, #{features}, #{preview}, #{jobId}, #{jobConf}, #{localFilePath})
     </insert>
 
-    <delete id="deleteLocalDataByUuid" parameterType="String" >
-        delete from local_data
-        where uuid=#{uuid}
+    <delete id="deleteLocalDataByUuid" parameterType="String">
+        delete
+        from local_data
+        where uuid = #{uuid}
     </delete>
+
+    <insert id="saveFileSlice" parameterType="com.tech.fate.portal.model.FileSliceInfo">
+        insert into file_slice
+            (uuid, file_name, file_type, file_hash, file_seq)
+        values (#{uuid}, #{fileName}, #{fileType}, #{fileHash}, #{fileSeq})
+    </insert>
+
+    <insert id="saveFile" parameterType="com.tech.fate.portal.model.FileInfo">
+        insert into files
+            (uuid, file_name, file_hash,file_path)
+        values (#{uuid}, #{fileName}, #{fileHash}, #{filePath})
+    </insert>
+
+    <select id="queryFileSliceList" parameterType="com.tech.fate.portal.model.FileSliceInfo"
+            resultType="com.tech.fate.portal.model.FileSliceInfo">
+        select uuid, file_name, file_type, file_hash, file_seq from file_slice
+        <where>
+            file_hash = #{fileHash}
+            <if test="fileSeq != null and fileSeq != ''">
+                and file_seq = #{fileSeq}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryFileInfo" parameterType="com.tech.fate.portal.model.FileInfo"
+            resultType="com.tech.fate.portal.model.FileInfo">
+        select uuid, file_name, file_hash,file_path from files
+        <where>
+            file_hash = #{fileHash}
+        </where>
+    </select>
 </mapper>
