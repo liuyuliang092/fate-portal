@@ -20,14 +20,5 @@ public class FatePortalException extends RuntimeException {
 	public FatePortalException(String message){
 		super(message);
 	}
-	
-	public FatePortalException(Throwable cause)
-	{
-		super(cause);
-	}
-	
-	public FatePortalException(String message, Throwable cause)
-	{
-		super(message,cause);
-	}
+
 }
