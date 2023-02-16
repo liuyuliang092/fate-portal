@@ -35,7 +35,7 @@ public interface ProjectService {
     /**
      * 查询项目参与者列表
      *
-     * @param page,projectUuid;
+     * @param projectUuid;
      * @return List<ProjectParticipantsDao>
      */
     List<ProjectParticipantsVo> projectParticipantList(String projectUuid) throws Exception;
@@ -117,7 +117,7 @@ public interface ProjectService {
      */
     QueryProjectLocalDataVo getProjectLocalData(String uuid, int pageNo, int pageSize) throws Exception;
 
-    List<ParticipantVo> queryProjectParticipantListByFML(String uuid) throws Exception;
+    List<ParticipantVo> queryProjectParticipantListByFml(String uuid) throws Exception;
 
     IPage<ProjectAssociateDataVo> queryProjectDataList(IPage<ProjectAssociateDataVo> projectAssociateDataVoPage, String projectUuid, String participantUuid) throws Exception;
 

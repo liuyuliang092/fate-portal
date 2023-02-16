@@ -55,8 +55,10 @@ public class ComponentsDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        { return true;}
+        if (o == null || getClass() != o.getClass())
+        {return false;}
         ComponentsDto that = (ComponentsDto) o;
         return groupId.equals(that.groupId) && groupName.equals(that.groupName);
     }

@@ -61,7 +61,7 @@ public class oConvertUtils {
 	}
 
 	@SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
-    public static String StrToUTF(String strIn, String sourceCode, String targetCode) {
+    public static String strToUtf(String strIn, String sourceCode, String targetCode) {
 		strIn = "";
 		try {
 			strIn = new String(strIn.getBytes("ISO-8859-1"), "GBK");
@@ -383,7 +383,7 @@ public class oConvertUtils {
 	/**
 	 * SET转换MAP
 	 * 
-	 * @param str
+	 * @param
 	 * @return
 	 */
 	public static Map<Object, Object> setToMap(Set<Object> setobj) {

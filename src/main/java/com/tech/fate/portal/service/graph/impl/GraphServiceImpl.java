@@ -82,7 +82,6 @@ public class GraphServiceImpl implements GraphService {
     private Integer taskCores;
     @Value("${fate.job.parameters.common.task.parallelism}")
     private Integer taskParallelism;
-
     @Override
     public void saveGraphData(GraphData graphData) throws Exception {
         String data = graphData.getGraphDataStr();
@@ -252,7 +251,7 @@ public class GraphServiceImpl implements GraphService {
         JSONObject components = new JSONObject();
         componentsInfoList.forEach(componentsInfo -> {
             List<String> inputData = Lists.newArrayList();
-            List<String> isometric_model = Lists.newArrayList();
+            List<String> isometricModel = Lists.newArrayList();
             List<String> outputdata = Lists.newArrayList(JobConstants.DSL_DATA);
             List<String> modelData = Lists.newArrayList("model");
             JSONObject component = new JSONObject();
@@ -262,23 +261,23 @@ public class GraphServiceImpl implements GraphService {
                     ComponentsInfo matchedComponent = findPreComponent(componentsInfoList, edgeInfos.get(0));
                     if (matchedComponent != null) {
                         inputData.add(matchedComponent.getDslNodeId() + "." + JobConstants.DSL_DATA);
-                        if (JobConstants.hetero_feature_selection.equals(componentsInfo.getData().getNodeId())) {
-                            isometric_model.add(matchedComponent.getDslNodeId() + "." + JobConstants.DSL_MODEL);
+                        if (JobConstants.HETERO_FEATURE_SELECTION.equals(componentsInfo.getData().getNodeId())) {
+                            isometricModel.add(matchedComponent.getDslNodeId() + "." + JobConstants.DSL_MODEL);
                         }
                     }
                 }
                 Input input;
-                if (JobConstants.hetero_feature_selection.equals(componentsInfo.getData().getNodeId())) {
-                    input = Input.builder().data(Input.InputData.builder().data(inputData).build()).isometric_model(isometric_model).build();
-                } else if (JobConstants.hetero_lr.equals(componentsInfo.getData().getNodeId())) {
-                    input = Input.builder().data(Input.InputData.builder().train_data(inputData).build()).build();
+                if (JobConstants.HETERO_FEATURE_SELECTION.equals(componentsInfo.getData().getNodeId())) {
+                    input = Input.builder().data(Input.InputData.builder().data(inputData).build()).isometricModel(isometricModel).build();
+                } else if (JobConstants.HETERO_LR.equals(componentsInfo.getData().getNodeId())) {
+                    input = Input.builder().data(Input.InputData.builder().trainData(inputData).build()).build();
                 } else {
                     input = Input.builder().data(Input.InputData.builder().data(inputData).build()).build();
                 }
                 component.set(JobConstants.DSL_INPUT, input);
             }
             OutPut outPut;
-            if (NodeConstants.ContainsModelNodeList.contains(componentsInfo.getData().getNodeId())) {
+            if (NodeConstants.CONTAINS_MODEL_NODELIST.contains(componentsInfo.getData().getNodeId())) {
                 outPut = OutPut.builder().data(outputdata).model(modelData).build();
             } else {
                 outPut = OutPut.builder().data(outputdata).build();
@@ -301,8 +300,8 @@ public class GraphServiceImpl implements GraphService {
     }
 
     private JSONObject buildJobConfParam(List<EdgeInfo> edgeInfoList, List<ComponentsInfo> componentsInfoList, String projectUuid, String taskUuid) throws Exception {
-        JSONObject runtime_conf = new JSONObject();
-        runtime_conf.set(JobConstants.DSL_VERSION, 2);
+        JSONObject runtimeConf = new JSONObject();
+        runtimeConf.set(JobConstants.DSL_VERSION, 2);
         RunConfRole runConfRole = new RunConfRole();
         List<Integer> guest = site();
         List<Integer> participantsSite = participantsSite(projectUuid);
@@ -310,11 +309,11 @@ public class GraphServiceImpl implements GraphService {
         runConfRole.setHost(participantsSite);
         runConfRole.setGuest(site());
         runConfRole.setArbiter(arbiter(guest, participantsSite, componentsInfoList));
-        runtime_conf.set(JobConstants.CONF_ROLE, runConfRole);
-        runtime_conf.set(JobConstants.CONF_INITIATOR, buildInitiator());
-        runtime_conf.set(JobConstants.CONF_COMPONENT_PARAMETERS, buildComponentParamterCommom(projectUuid, taskUuid));
-        log.info("conf = {}", runtime_conf);
-        return runtime_conf;
+        runtimeConf.set(JobConstants.CONF_ROLE, runConfRole);
+        runtimeConf.set(JobConstants.CONF_INITIATOR, buildInitiator());
+        runtimeConf.set(JobConstants.CONF_COMPONENT_PARAMETERS, buildComponentParamterCommom(projectUuid, taskUuid));
+        log.info("conf = {}", runtimeConf);
+        return runtimeConf;
     }
 
     private List<Integer> site() {
@@ -380,15 +379,14 @@ public class GraphServiceImpl implements GraphService {
     private void buildComponentParamterCommon(JSONObject commom, ComponentsParamsSettings componentsParamsSettings) {
         JSONObject paramsSettings = JSONUtil.parseObj(componentsParamsSettings.getParamSettings());
         paramsSettings.forEach(params -> forEachJson(params));
-        if (JobConstants.one_hot_encoder.equals(componentsParamsSettings.getNodeId())) {
-            paramsSettings.set("transform_col_names", ParamsConstants.transform_col_names);
+        if (JobConstants.ONE_HOT_ENCODER.equals(componentsParamsSettings.getNodeId())) {
+            paramsSettings.set("transform_col_names", ParamsConstants.TRANSFORM_COL_NAMES);
         }
         commom.set(componentsParamsSettings.getDslNodeId(), paramsSettings);
     }
-
+    private static Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
     private Object transType(Object value) {
         String str = JSONUtil.toJsonStr(value);
-        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
         if (str.contains(".")) {
             return Double.parseDouble(str);
         } else if (pattern.matcher(str).matches()) {
@@ -426,9 +424,9 @@ public class GraphServiceImpl implements GraphService {
             for (JSONObject paramSetting : paramSettingList) {
                 String reader = ResourceUtil.readUtf8Str("data/confReader.json");
                 String siteUuid = null;
-                String data_uuid = paramSetting.getStr("data_uuid");
+                String dataUuid = paramSetting.getStr("data_uuid");
                 List<ProjectAssociateDataVo> projectDataDtoList = projectService.projectAssociateDataList(projectUuid);
-                Optional<ProjectAssociateDataVo> projectData = projectDataDtoList.stream().filter(projectDataDto -> data_uuid.equals(projectDataDto.getDataUuid())).findFirst();
+                Optional<ProjectAssociateDataVo> projectData = projectDataDtoList.stream().filter(projectDataDto -> dataUuid.equals(projectDataDto.getDataUuid())).findFirst();
                 if (projectData.isPresent()) {
                     reader = reader.replace("@name", projectData.get().getTableName()).replace("@space", projectData.get().getTableNamespace());
                     siteUuid = projectData.get().getProvidingSiteUuid();
@@ -492,7 +490,7 @@ public class GraphServiceImpl implements GraphService {
         List<Integer> arbiter = Lists.newArrayList();
         SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
         int index = secureRandom.nextInt(host.size());
-        List list = componentsInfoList.stream().filter(componentsInfo -> NodeConstants.arbiter_must_be_host_node.contains(componentsInfo.getData().getNodeId())).collect(Collectors.toList());
+        List list = componentsInfoList.stream().filter(componentsInfo -> NodeConstants.ARBITER_MUST_BE_HOST_NODE.contains(componentsInfo.getData().getNodeId())).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(list)) {
             arbiter.add(index == host.size() ? host.get(index - 1) : host.get(index));
         } else {

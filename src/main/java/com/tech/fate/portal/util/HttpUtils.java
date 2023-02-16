@@ -88,7 +88,8 @@ public class HttpUtils {
             // 创建Http Post请求
             HttpPost httpPost = new HttpPost(url);
             MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-            multipartEntityBuilder.setMode(HttpMultipartMode.RFC6532);   // 处理中文文件名称乱码
+            // 处理中文文件名称乱码
+            multipartEntityBuilder.setMode(HttpMultipartMode.RFC6532);
             multipartEntityBuilder.setCharset(Charset.forName("UTF-8"));
             multipartEntityBuilder.addBinaryBody("file", inputStream, org.apache.http.entity.ContentType.MULTIPART_FORM_DATA, fileName);
             HttpEntity httpEntity = multipartEntityBuilder.build();

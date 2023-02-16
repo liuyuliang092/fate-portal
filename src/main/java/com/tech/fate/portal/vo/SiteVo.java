@@ -23,7 +23,7 @@ public class SiteVo {
     private DeletedAtBean deletedAt;
 
     private String description;
-//    @JSONField(name = "externalHost")
+
     private String externalHost;
 
     private long externalPort;
