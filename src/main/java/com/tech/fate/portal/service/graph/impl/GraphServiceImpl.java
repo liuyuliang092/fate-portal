@@ -186,23 +186,25 @@ public class GraphServiceImpl implements GraphService {
 
     private void updateComponentsStatus(String projectUuid, String taskUuid, List<ComponentsStatus> componentsStatusList) {
         GraphData graphData = this.queryGraphData(projectUuid, taskUuid);
-        String data = graphData.getGraphDataStr();
-        JSONObject graph = JSONUtil.parseObj(data);
-        List<JSONObject> cells = graph.get(GraphConstants.CELLS, List.class);
-        cells.forEach(cell -> {
-            if (GraphConstants.SHAPE_NODE.equals(cell.get(GraphConstants.SHAPE))) {
-                for (ComponentsStatus componentsStatus : componentsStatusList) {
-                    if (cell.getStr("id").equals(componentsStatus.getId())) {
-                        JSONObject nodeData = JSONUtil.parseObj(cell.getStr("data"));
-                        nodeData.set("status", componentsStatus.getStatus());
-                        cell.set("data", nodeData);
+        if (graphData != null) {
+            String data = graphData.getGraphDataStr();
+            JSONObject graph = JSONUtil.parseObj(data);
+            List<JSONObject> cells = graph.get(GraphConstants.CELLS, List.class);
+            cells.forEach(cell -> {
+                if (GraphConstants.SHAPE_NODE.equals(cell.get(GraphConstants.SHAPE))) {
+                    for (ComponentsStatus componentsStatus : componentsStatusList) {
+                        if (cell.getStr("id").equals(componentsStatus.getId())) {
+                            JSONObject nodeData = JSONUtil.parseObj(cell.getStr("data"));
+                            nodeData.set("status", componentsStatus.getStatus());
+                            cell.set("data", nodeData);
+                        }
                     }
                 }
-            }
-        });
-        graph.set(GraphConstants.CELLS, cells);
-        graphData.setGraphData(graph);
-        graphMapper.updateGraphData(graphData);
+            });
+            graph.set(GraphConstants.CELLS, cells);
+            graphData.setGraphData(graph);
+            graphMapper.updateGraphData(graphData);
+        }
     }
 
     private String buildJobParam(GraphData graphData) throws Exception {

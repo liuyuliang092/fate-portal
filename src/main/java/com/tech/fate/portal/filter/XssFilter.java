@@ -28,10 +28,10 @@ import java.io.IOException;
 /**
  * @Author Marco Polo
  **/
-@Component
-@WebFilter(urlPatterns = {"/*"}, filterName = "XssFilter")
-@Slf4j
-@Order(2)
+//@Component
+//@WebFilter(urlPatterns = {"/*"}, filterName = "XssFilter")
+//@Slf4j
+//@Order(2)
 public class XssFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
