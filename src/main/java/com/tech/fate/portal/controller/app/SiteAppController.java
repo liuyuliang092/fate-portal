@@ -63,9 +63,9 @@ public class SiteAppController {
     }
 
     @PostMapping("/site/fmlmanager/connect")
-    public ApiResponse registerToFML(SiteConnectInfo siteConnectInfo) {
+    public ApiResponse registerToFml(SiteConnectInfo siteConnectInfo) {
         try {
-            ApiResponse apiResponse = siteService.registerToFML(siteConnectInfo);
+            ApiResponse apiResponse = siteService.registerToFml(siteConnectInfo);
             return apiResponse;
         } catch (Exception e) {
             log.error("connect to FML failed", e);

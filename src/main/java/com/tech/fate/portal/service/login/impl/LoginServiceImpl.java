@@ -33,7 +33,6 @@ public class LoginServiceImpl implements LoginService {
             String token = JwtUtil.sign(loginUser.getUsername(), loginUser.getPassword());
             loginResultDto.setToken(token);
             loginResultDto.setMessage("login success");
-//            redisUtil.set(loginUser.getUsername(), token, 30 * 60);
         } else {
             loginResultDto.setMessage("login failed,the username or password is incorrect");
         }
@@ -44,7 +43,6 @@ public class LoginServiceImpl implements LoginService {
     public LoginResultDto loginOut(LoginUser loginUser) {
         LoginResultDto loginResultDto = new LoginResultDto();
         //todo 后续清理缓存的登录信息时使用
-//        redisUtil.del(loginUser.getUsername());
         loginResultDto.setSuccess(Boolean.TRUE);
         return loginResultDto;
     }

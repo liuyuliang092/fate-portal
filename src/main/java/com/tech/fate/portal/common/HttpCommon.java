@@ -22,6 +22,6 @@ public class HttpCommon {
 
     public final static Integer TIME_OUT = 60000;
 
-    public final static String FMLBaseUrl="/api/v1";
-    public final static String FATEFlowBaseUrl="/v1";
+    public final static String FML_BASE_URL ="/api/v1";
+    public final static String FATE_FLOW_BASE_URL ="/v1";
 }

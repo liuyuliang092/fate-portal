@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 public class NodeConstants {
-    public final static List<String> ContainsModelNodeList = Lists.newArrayList("data_transform", "feature_scale", "hetero_feature_binning", "hetero_feature_selection", "one_hot_encoder", "hetero_lr");
+    public final static List<String> CONTAINS_MODEL_NODELIST = Lists.newArrayList("data_transform", "feature_scale", "hetero_feature_binning", "hetero_feature_selection", "one_hot_encoder", "hetero_lr");
 
-    public final static List<String> arbiter_must_be_host_node = Lists.newArrayList("hetero_lr", "heterolinr", "heteropoisson");
+    public final static List<String> ARBITER_MUST_BE_HOST_NODE = Lists.newArrayList("hetero_lr", "heterolinr", "heteropoisson");
 }

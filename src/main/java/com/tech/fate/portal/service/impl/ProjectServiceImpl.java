@@ -95,7 +95,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         Timestamp t = new Timestamp(System.currentTimeMillis());
         SiteVo siteDto = siteService.querySite();
-//        projectDto.setAutoApprovalEnabled(basicProjectInfoDto.isAutoApprovalEnabled());
         projectDto.setDescription(basicProjectInfoDto.getDescription());
         projectDto.setName(basicProjectInfoDto.getName());
         projectDto.setCreatedAt(t);
@@ -269,12 +268,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @Override
     public ApiResponse createNewJob(String uuid, JobRequestDto jobRequestDto, String userName) throws Exception {
-//        String url = siteService.getFmlAddr() + FmlManagerConstants.FML_JOB_CREATE;
         JobDto jobDto = new JobDto();
         SiteVo siteDto = siteService.querySite();
-//        Page<ProjectDataDto> page = new Page<>();
-//        List<ProjectDataDto> projectDataDtoList = projectMapper.queryProjectDataDtoList(page, uuid);
-//        JobRequestDto.RequestData initiatorData = jobRequestDto.getInitiatorData();
         jobDto.setCreatedAt(DateUtils.formatDateTime());
         jobDto.setDeletedAt(DateUtils.formatDateTime());
         jobDto.setUpdatedAt(DateUtils.formatDateTime());
@@ -301,52 +296,11 @@ public class ProjectServiceImpl implements ProjectService {
         jobDto.setDsl(jobRequestDto.getDslJson());
         jobDto.setRequestJson(JSON.toJSONString(jobRequestDto));
         projectMapper.createNewJob(jobDto);
-//        ProjectJobVo projectJobVo = getJobDetailInfo(uuid, jobDto.getUuid());
-//        JobParticipantDto jobParticipantInit = createJobParticipantDto(projectJobVo, projectDataDtoList, initiatorData, CurrentSite.getRole());
-//        projectMapper.addJobParticipant(jobParticipantInit);
-//        List<JobRequestDto.RequestData> otherSiteData = jobRequestDto.getOtherSiteData();
-//        if (otherSiteData != null) {
-//            for (JobRequestDto.RequestData rd : otherSiteData) {
-//                JobParticipantDto jobParticipantRemote = createJobParticipantDto(projectJobVo, projectDataDtoList, rd, OtherSite.getRole());
-//                projectMapper.addJobParticipant(jobParticipantRemote);
-//            }
-//        }
-//        JobCreateFMLDto jobCreateFMLDto = new JobCreateFMLDto();
-//        jobCreateFMLDto.setConfJson(jobRequestDto.getConfJson());
-//        jobCreateFMLDto.setDslJson(jobRequestDto.getDslJson());
-//        jobCreateFMLDto.setDescription(jobRequestDto.getDescription());
-//        jobCreateFMLDto.setInitiatorData(jobRequestDto.getInitiatorData());
-//        jobCreateFMLDto.setName(jobRequestDto.getName());
-//        jobCreateFMLDto.setOtherSiteData(jobRequestDto.getOtherSiteData());
-//        jobCreateFMLDto.setPredictingModelUuid(jobRequestDto.getPredictingModelUuid());
-//        jobCreateFMLDto.setProjectUuid(jobRequestDto.getProjectUuid());
-//        jobCreateFMLDto.setTrainingAlgorithmType(jobRequestDto.getTrainingAlgorithmType());
-//        jobCreateFMLDto.setTrainingComponentListToDeploy(jobRequestDto.getTrainingComponentListToDeploy());
-//        jobCreateFMLDto.setTrainingModelName(jobRequestDto.getTrainingModelName());
-//        jobCreateFMLDto.setTrainingValidationEnabled(jobRequestDto.isTrainingValidationEnabled());
-//        jobCreateFMLDto.setTrainingValidationPercent(jobRequestDto.getTrainingValidationPercent());
-//        jobCreateFMLDto.setType(jobRequestDto.getType());
-//        jobCreateFMLDto.setUsername(userName);
-//        jobCreateFMLDto.setUuid(jobDto.getUuid());
-//        String requestParams = JSON.toJSONString(jobCreateFMLDto);
-//        String result = HttpUtils.post(url, requestParams);
-//        ApiResponse apiResponse;
-//        if (StringUtils.isNotBlank(result)) {
-//            apiResponse = JSONUtil.toBean(result, ApiResponse.class);
-//            if (apiResponse.getCode() == 1) {
-//                apiResponse.setMessage("FML接口执行失败！");
-//                return apiResponse;
-//            }
-//        } else {
-//            return ApiResponse.fail("调用FML接口失败！");
-//        }
-//        apiResponse.setData(projectJobVo);
-//        apiResponse.setMessage("success");
         return ApiResponse.ok("success");
     }
 
     @Override
-    public List<ParticipantVo> queryProjectParticipantListByFML(String uuid) throws Exception {
+    public List<ParticipantVo> queryProjectParticipantListByFml(String uuid) throws Exception {
         String url = siteService.getFmlAddr() + FmlManagerConstants.FML_SITE;
         String result = HttpUtils.get(url);
         List<ParticipantVo> participantVoList = new ArrayList<>();

@@ -27,5 +27,5 @@ public class MockDto {
 
     private boolean approved;
 
-    private String site_uuid;
+    private String siteUuid;
 }

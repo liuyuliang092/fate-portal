@@ -37,13 +37,13 @@ public class JobConstants {
 
     public final static String READER = "reader";
 
-    public final static String hetero_lr = "hetero_lr";
+    public final static String HETERO_LR = "hetero_lr";
 
     public final static String DATA_TRANSFORM = "data_transform";
 
-    public final static String hetero_feature_selection = "hetero_feature_selection";
+    public final static String HETERO_FEATURE_SELECTION = "hetero_feature_selection";
 
-    public final static String one_hot_encoder = "one_hot_encoder";
+    public final static String ONE_HOT_ENCODER = "one_hot_encoder";
 
     public final static String NEED_DEYLOY = "need_deploy";
 

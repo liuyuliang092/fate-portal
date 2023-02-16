@@ -21,6 +21,6 @@ import java.util.List;
 
 public class ParamsConstants {
 
-    public final static List<String> transform_col_names = Lists.newArrayList();
+    public final static List<String> TRANSFORM_COL_NAMES = Lists.newArrayList();
 
 }

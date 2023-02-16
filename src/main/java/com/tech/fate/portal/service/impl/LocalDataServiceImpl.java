@@ -63,7 +63,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.tech.fate.portal.common.HttpCommon.FATEFlowBaseUrl;
+import static com.tech.fate.portal.common.HttpCommon.FATE_FLOW_BASE_URL;
 
 
 /**

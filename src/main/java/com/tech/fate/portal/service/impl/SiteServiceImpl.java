@@ -45,7 +45,7 @@ import java.net.Socket;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static com.tech.fate.portal.common.HttpCommon.FMLBaseUrl;
+import static com.tech.fate.portal.common.HttpCommon.FML_BASE_URL;
 
 /**
  * @author Iwi
@@ -101,7 +101,7 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
-    public ApiResponse registerToFML(SiteConnectInfo siteConnectInfo) throws Exception {
+    public ApiResponse registerToFml(SiteConnectInfo siteConnectInfo) throws Exception {
         SiteDto siteDto = siteMapper.querySite();
         if (siteDto != null) {
             String fmlUrl = this.getFmlAddr();
@@ -110,17 +110,12 @@ public class SiteServiceImpl implements SiteService {
             }
             StringBuilder url = new StringBuilder();
             url.append(fmlUrl)
-                    .append(FMLBaseUrl)
+                    .append(FML_BASE_URL)
                     .append("/site");
             ConnectToFMLBean param = new ConnectToFMLBean();
             BeanUtils.copyProperties(siteDto, param);
-//            param.setCreatedAt(DateUtil.format(new Date(siteDto.getCreatedAt().getTime()), "yyyy-MM-dd'T'HH:mm:ss") + "Z");
-//            param.setUpdatedAt(DateUtil.format(new Date(siteDto.getUpdatedAt().getTime()), "yyyy-MM-dd'T'HH:mm:ss") + "Z");
             param.setCreatedAt(DateUtils.formatDateTimeForGo());
             param.setUpdatedAt(DateUtils.formatDateTimeForGo());
-//            param.setDeletedAt(new ConnectToFMLBean.DeletedAtBean());
-//            param.getDeletedAt().setTime(DateUtil.format(new Date(siteDto.getDeletedAt().getTime()), "yyyy-MM-dd'T'HH:mm:ss"));
-//            param.getDeletedAt().setValid(true);
             param.setLastConnectedAt(DateUtil.format(new Date(siteDto.getFmlManagerConnectedAt().getTime()), "yyyy-MM-dd'T'HH:mm:ss") + "Z");
             log.info("register fml params = {}", JSONObject.toJSONString(param));
             String result = HttpUtils.post(url.toString(), JSONObject.toJSONString(param));

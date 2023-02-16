@@ -234,7 +234,6 @@ public class JobServiceImpl implements JobService {
         jobDetailVo.setFateJobId(jobDto.getFateJobId());
         jobDetailVo.setFateJobStatus(jobDto.getFateJobStatus());
         jobDetailVo.setFateModelName(jobDto.getFateModelId());
-//        jobDetailVo.setFinishTime(jobDto.getFinishedAt().toString());
         jobDetailVo.setInitiatingSiteName(jobDto.getInitiatingSiteName());
         jobDetailVo.setInitiatingSitePartyId(jobDto.getInitiatingSitePartyId());
         jobDetailVo.setInitiatingSiteUuid(jobDto.getInitiatingSiteUuid());

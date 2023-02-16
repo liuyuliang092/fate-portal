@@ -75,7 +75,7 @@ public class ProjectApiController {
         if (all) {
             List<ParticipantVo> page;
             try {
-                page = projectService.queryProjectParticipantListByFML(uuid);
+                page = projectService.queryProjectParticipantListByFml(uuid);
             } catch (Exception e) {
                 return ApiResponse.fail(e.getMessage());
             }

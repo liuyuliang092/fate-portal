@@ -31,7 +31,7 @@ public interface SiteService {
      */
     SiteVo querySite() throws Exception;
 
-    ApiResponse registerToFML(SiteConnectInfo siteConnectInfo) throws Exception;
+    ApiResponse registerToFml(SiteConnectInfo siteConnectInfo) throws Exception;
 
     String getFmlAddr() throws Exception;
 
