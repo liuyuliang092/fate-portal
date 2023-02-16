@@ -20,5 +20,5 @@ public class FatePortalException extends RuntimeException {
 	public FatePortalException(String message){
 		super(message);
 	}
-
+	
 }
