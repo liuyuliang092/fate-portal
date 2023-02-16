@@ -57,7 +57,7 @@ public class AuthenticationFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        String md5pwd = DigestUtils.md5DigestAsHex(password.getBytes());
+      //  String md5pwd = DigestUtils.md5DigestAsHex(password.getBytes());
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String path = httpServletRequest.getRequestURI();
         if (excludeUrlList.contains(path) || path.contains(excludeUrl)) {
@@ -67,7 +67,7 @@ public class AuthenticationFilter implements Filter {
         String token = TokenUtils.getTokenByRequest(httpServletRequest);
         if (StringUtils.isNotBlank(token)) {
             String userName = TokenUtils.getLoginUserName(httpServletRequest);
-            if (JwtUtil.verify(token, userName, md5pwd)) {
+            if (JwtUtil.verify(token, userName, password)) {
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }

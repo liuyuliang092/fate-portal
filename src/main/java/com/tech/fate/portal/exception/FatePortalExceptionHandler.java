@@ -38,7 +38,7 @@ public class FatePortalExceptionHandler {
     @ExceptionHandler(FatePortalException.class)
     public Result<?> handleJeecgBootException(FatePortalException e) {
         log.error(e.getMessage(), e);
-        return Result.error(e.getMessage());
+        return Result.error("system error");
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
@@ -63,7 +63,7 @@ public class FatePortalExceptionHandler {
             return Result.error(errorInfoEnum.getError());
         }
         //update-end---author:zyf ---date:20220411  for：处理Sentinel限流自定义异常
-        return Result.error("操作失败，" + e.getMessage());
+        return Result.error("操作失败" );
     }
 
     /**

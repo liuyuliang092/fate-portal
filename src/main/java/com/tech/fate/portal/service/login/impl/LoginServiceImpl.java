@@ -27,8 +27,8 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public LoginResultDto loginIn(LoginUser loginUser) {
         LoginResultDto loginResultDto = new LoginResultDto();
-        String md5pwd = DigestUtils.md5DigestAsHex(password.getBytes());
-        if (loginUser != null && userName.equals(loginUser.getUsername()) && md5pwd.equals(loginUser.getPassword())) {
+        // String md5pwd = DigestUtils.md5DigestAsHex(password.getBytes());
+        if (loginUser != null && userName.equals(loginUser.getUsername()) && password.equals(loginUser.getPassword())) {
             loginResultDto.setSuccess(Boolean.TRUE);
             String token = JwtUtil.sign(loginUser.getUsername(), loginUser.getPassword());
             loginResultDto.setToken(token);

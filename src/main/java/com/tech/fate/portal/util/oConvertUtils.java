@@ -28,6 +28,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Date;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -558,7 +560,13 @@ public class oConvertUtils {
 	public static String randomGen(int place) {
 		String base = "qwertyuioplkjhgfdsazxcvbnmQAZWSXEDCRFVTGBYHNUJMIKLOP0123456789";
 		StringBuffer sb = new StringBuffer();
-		Random rd = new Random();
+		// Random rd = new Random();
+		SecureRandom rd= null;
+		try {
+			rd = SecureRandom.getInstance("SHA1PRNG");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 		for(int i=0;i<place;i++) {
 			sb.append(base.charAt(rd.nextInt(base.length())));
 		}
