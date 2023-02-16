@@ -82,6 +82,15 @@ public class GraphServiceImpl implements GraphService {
     private Integer taskCores;
     @Value("${fate.job.parameters.common.task.parallelism}")
     private Integer taskParallelism;
+    @Value(".")
+    private String enPeriod;
+    @Value("null")
+    private String nullStr;
+    @Value("true")
+    private String trueStr;
+    @Value("false")
+    private String falseStr;
+    private static Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
     @Override
     public void saveGraphData(GraphData graphData) throws Exception {
         String data = graphData.getGraphDataStr();
@@ -384,18 +393,17 @@ public class GraphServiceImpl implements GraphService {
         }
         commom.set(componentsParamsSettings.getDslNodeId(), paramsSettings);
     }
-    private static Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
     private Object transType(Object value) {
         String str = JSONUtil.toJsonStr(value);
-        if (str.contains(".")) {
+        if (str.contains(enPeriod)) {
             return Double.parseDouble(str);
         } else if (pattern.matcher(str).matches()) {
             return Integer.parseInt(str);
-        } else if ("null".equals(str)) {
+        } else if (nullStr.equals(str)) {
             return null;
-        } else if ("true".equals(str)) {
+        } else if (trueStr.equals(str)) {
             return true;
-        } else if ("false".equals(str)) {
+        } else if (falseStr.equals(str)) {
             return false;
         }
         return value;

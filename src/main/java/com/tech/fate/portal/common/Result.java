@@ -108,7 +108,7 @@ public class Result<T> implements Serializable {
 		return r;
 	}
 
-	public static<T> Result<T> Ok() {
+	public static<T> Result<T> isOk() {
 		Result<T> r = new Result<T>();
 		r.setSuccess(true);
 		r.setCode(CommonConstant.SC_OK_200);
@@ -122,7 +122,7 @@ public class Result<T> implements Serializable {
 	 * @param <T>
 	 * @return
 	 */
-	public static<T> Result<T> Ok(String msg) {
+	public static<T> Result<T> isOk(String msg) {
 		Result<T> r = new Result<T>();
 		r.setSuccess(true);
 		r.setCode(CommonConstant.SC_OK_200);
@@ -132,7 +132,7 @@ public class Result<T> implements Serializable {
 		return r;
 	}
 
-	public static<T> Result<T> Ok(T data) {
+	public static<T> Result<T> isOk(T data) {
 		Result<T> r = new Result<T>();
 		r.setSuccess(true);
 		r.setCode(CommonConstant.SC_OK_200);
@@ -140,7 +140,7 @@ public class Result<T> implements Serializable {
 		return r;
 	}
 
-	public static<T> Result<T> Ok(String msg, T data) {
+	public static<T> Result<T> isOk(String msg, T data) {
 		Result<T> r = new Result<T>();
 		r.setSuccess(true);
 		r.setCode(CommonConstant.SC_OK_200);
