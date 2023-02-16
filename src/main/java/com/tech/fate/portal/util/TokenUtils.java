@@ -15,6 +15,7 @@
  */
 package com.tech.fate.portal.util;
 
+import cn.hutool.json.JSONUtil;
 import com.tech.fate.portal.api.CommonAPI;
 import com.tech.fate.portal.constants.CacheConstant;
 import com.tech.fate.portal.constants.CommonConstant;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+
 @Slf4j
 public class TokenUtils {
 
@@ -61,8 +63,8 @@ public class TokenUtils {
     }
 
     private static boolean jwtTokenRefresh(String token, String userName, String passWord, RedisUtil redisUtil) {
-        String cacheToken = oConvertUtils.getString(redisUtil.get(CommonConstant.PREFIX_USER_TOKEN + token));
-        if (oConvertUtils.isNotEmpty(cacheToken)) {
+        String cacheToken = JSONUtil.toJsonStr(redisUtil.get(CommonConstant.PREFIX_USER_TOKEN + token));
+        if (StringUtils.isNotEmpty(cacheToken)) {
             if (!JwtUtil.verify(cacheToken, userName, passWord)) {
                 String newAuthorization = JwtUtil.sign(userName, passWord);
                 redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, newAuthorization);
