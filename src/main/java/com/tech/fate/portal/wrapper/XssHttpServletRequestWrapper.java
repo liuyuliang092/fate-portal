@@ -42,6 +42,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
         String value = super.getParameter(name);
         if (!StrUtil.hasEmpty(value)) {
             value = HtmlUtil.filter(value);
+            value = HtmlUtil.unescape(value);
         }
         return value;
     }
@@ -54,6 +55,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
                 String value = values[i];
                 if (!StrUtil.hasEmpty(value)) {
                     value = HtmlUtil.filter(value);
+                    value = HtmlUtil.unescape(value);
                 }
                 values[i] = value;
             }
@@ -72,6 +74,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
                     String value = values[i];
                     if (!StrUtil.hasEmpty(value)) {
                         value = HtmlUtil.filter(value);
+                        value = HtmlUtil.unescape(value);
                     }
                     values[i] = value;
                 }
@@ -86,6 +89,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
         String value = super.getHeader(name);
         if (!StrUtil.hasEmpty(value)) {
             value = HtmlUtil.filter(value);
+            value = HtmlUtil.unescape(value);
         }
         return value;
     }
@@ -110,7 +114,9 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
         for (String key : map.keySet()) {
             Object val = map.get(key);
             if (map.get(key) instanceof String) {
-                resultMap.put(key, HtmlUtil.filter(val.toString()));
+                String value = HtmlUtil.filter(val.toString());
+                value = HtmlUtil.unescape(value);
+                resultMap.put(key, value);
             } else {
                 resultMap.put(key, val);
             }
