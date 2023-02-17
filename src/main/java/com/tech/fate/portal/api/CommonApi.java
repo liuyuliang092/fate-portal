@@ -23,8 +23,9 @@ import java.util.Set;
 
 /**
  * 通用api
+ * @author liuyuliang
  */
-public interface CommonAPI {
+public interface CommonApi {
 
     /**
      * 1查询用户角色信息

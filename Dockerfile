@@ -12,6 +12,7 @@ WORKDIR /data
 
 COPY ./target/*.jar ${PREFIX_NAME}-${APP_NAME}.jar
 COPY ./src/main/resources/application-prod.properties application.properties
+COPY ./src/main/resources/logback-spring.xml logback-spring.xml
 
 ENV PREFIX_NAME=${PREFIX_NAME} APP_NAME=${APP_NAME} LANG=en_US.UTF-8 TERM=xterm MS=4g NS=2g
 

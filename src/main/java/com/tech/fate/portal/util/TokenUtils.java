@@ -16,7 +16,7 @@
 package com.tech.fate.portal.util;
 
 import cn.hutool.json.JSONUtil;
-import com.tech.fate.portal.api.CommonAPI;
+import com.tech.fate.portal.api.CommonApi;
 import com.tech.fate.portal.constants.CacheConstant;
 import com.tech.fate.portal.constants.CommonConstant;
 import com.tech.fate.portal.exception.FatePortalException;
@@ -38,13 +38,13 @@ public class TokenUtils {
         return token;
     }
 
-    public static boolean verifyToken(HttpServletRequest request, CommonAPI commonApi, RedisUtil redisUtil) {
+    public static boolean verifyToken(HttpServletRequest request, CommonApi commonApi, RedisUtil redisUtil) {
         log.debug(" -- url --" + request.getRequestURL());
         String token = getTokenByRequest(request);
         return TokenUtils.verifyToken(token, commonApi, redisUtil);
     }
 
-    public static boolean verifyToken(String token, CommonAPI commonApi, RedisUtil redisUtil) {
+    public static boolean verifyToken(String token, CommonApi commonApi, RedisUtil redisUtil) {
         if (StringUtils.isBlank(token)) {
             throw new FatePortalException("token不能为空!");
         }
@@ -75,7 +75,7 @@ public class TokenUtils {
         return false;
     }
 
-    public static LoginUser getLoginUser(String username, CommonAPI commonApi, RedisUtil redisUtil) {
+    public static LoginUser getLoginUser(String username, CommonApi commonApi, RedisUtil redisUtil) {
         LoginUser loginUser = null;
         String loginUserKey = CacheConstant.SYS_USERS_CACHE + "::" + username;
         if (redisUtil.hasKey(loginUserKey)) {
