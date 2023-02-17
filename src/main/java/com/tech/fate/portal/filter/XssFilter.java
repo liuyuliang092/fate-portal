@@ -29,7 +29,7 @@ import java.io.IOException;
  * @Author Marco Polo
  **/
 @Component
-@WebFilter(urlPatterns = {"/*"}, filterName = "XssFilter")
+@WebFilter(urlPatterns = {"/api/*"}, filterName = "XssFilter")
 @Slf4j
 @Order(2)
 public class XssFilter implements Filter {

@@ -91,6 +91,7 @@ public class GraphServiceImpl implements GraphService {
     @Value("false")
     private String falseStr;
     private static Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+
     @Override
     public void saveGraphData(GraphData graphData) throws Exception {
         String data = graphData.getGraphDataStr();
@@ -183,6 +184,7 @@ public class GraphServiceImpl implements GraphService {
                     countDownLatch.await();
                 }
                 if (!CollectionUtils.isEmpty(componentsStatusList)) {
+                    log.info("componentStatus = {}", componentsStatusList);
                     updateComponentsStatus(queryComponentsStatus.getProjectUuid(), queryComponentsStatus.getTaskUuid(), componentsStatusList);
                 }
             }
@@ -393,6 +395,7 @@ public class GraphServiceImpl implements GraphService {
         }
         commom.set(componentsParamsSettings.getDslNodeId(), paramsSettings);
     }
+
     private Object transType(Object value) {
         String str = JSONUtil.toJsonStr(value);
         if (str.contains(enPeriod)) {

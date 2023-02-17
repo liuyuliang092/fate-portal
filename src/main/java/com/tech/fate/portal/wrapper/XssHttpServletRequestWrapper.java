@@ -18,13 +18,14 @@ package com.tech.fate.portal.wrapper;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.json.JSONUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.Map;
 /**
  * @Author Marco Polo
  **/
+@Slf4j
 public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
     public XssHttpServletRequestWrapper(HttpServletRequest request) {
         super(request);
@@ -97,8 +99,8 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public ServletInputStream getInputStream() throws IOException {
         InputStream in = super.getInputStream();
-        StringBuffer body = new StringBuffer();
-        InputStreamReader reader = new InputStreamReader(in, Charset.forName("UTF-8"));
+        StringBuilder body = new StringBuilder();
+        InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
         BufferedReader buffer = new BufferedReader(reader);
         String line = buffer.readLine();
         while (line != null) {
@@ -108,7 +110,6 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
         buffer.close();
         reader.close();
         in.close();
-
         Map<String, Object> map = JSONUtil.parseObj(body.toString());
         Map<String, Object> resultMap = new HashMap(map.size());
         for (String key : map.keySet()) {
@@ -122,7 +123,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
             }
         }
         String str = JSONUtil.toJsonStr(resultMap);
-        final ByteArrayInputStream bain = new ByteArrayInputStream(str.getBytes());
+        final ByteArrayInputStream bain = new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8));
         return new ServletInputStream() {
             @Override
             public int read() throws IOException {
@@ -131,12 +132,12 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
             @Override
             public boolean isFinished() {
-                return false;
+                return true;
             }
 
             @Override
             public boolean isReady() {
-                return false;
+                return true;
             }
 
             @Override
