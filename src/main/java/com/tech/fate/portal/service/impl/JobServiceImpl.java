@@ -331,7 +331,9 @@ public class JobServiceImpl implements JobService {
     public QueryJobFateResponseDto queryAndUpdateJobStatusByFate(ProjectJobVo pjd, CountDownLatch jobsSize) {
         QueryJobFateResponseDto queryJobFateResponseDto = null;
         try {
-            if (StringUtils.isNotBlank(pjd.getFateJobId()) && pjd.getStatus() != JobRunning.getStatus()) {
+            log.info("jobid = {}", StringUtils.isNotBlank(pjd.getFateJobId()));
+            log.info("status = {} ,s = {}", pjd.getStatus(),JobRunning.getStatus());
+            if (StringUtils.isNotBlank(pjd.getFateJobId()) && pjd.getStatus() == JobRunning.getStatus()) {
                 queryJobFateResponseDto = this.queryJobStatusByFate(pjd);
                 if (queryJobFateResponseDto != null && queryJobFateResponseDto.getData().size() > 0) {
                     String fateJobSatus = queryJobFateResponseDto.getData().get(0).getFStatus();
@@ -432,10 +434,7 @@ public class JobServiceImpl implements JobService {
         if (StringUtils.isNotBlank(result)) {
             fateFlowResult = JSONUtil.toBean(result, FateFlowResult.class);
             if (fateFlowResult.getRetcode() == CommonConstant.FATE_FLOW_OK) {
-                String data = JSONUtil.toJsonStr(fateFlowResult.getData());
-                if (StringUtils.isNotBlank(data)) {
-                    queryJobFateResponseDto = com.alibaba.fastjson.JSONObject.parseObject(data, QueryJobFateResponseDto.class);
-                }
+                queryJobFateResponseDto = com.alibaba.fastjson.JSONObject.parseObject(result, QueryJobFateResponseDto.class);
             }
         }
         return queryJobFateResponseDto;

@@ -29,7 +29,7 @@ import java.util.List;
 public class Input {
 
     private InputData data;
-    public List<String> isometricModel;
+    public List<String> isometric_model;
 
     @Data
     @AllArgsConstructor
@@ -37,7 +37,7 @@ public class Input {
     @Builder
     public static class InputData {
         public List<String> data;
-        public List<String> trainData;
+        public List<String> train_data;
 
     }
 }
