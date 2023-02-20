@@ -331,8 +331,6 @@ public class JobServiceImpl implements JobService {
     public QueryJobFateResponseDto queryAndUpdateJobStatusByFate(ProjectJobVo pjd, CountDownLatch jobsSize) {
         QueryJobFateResponseDto queryJobFateResponseDto = null;
         try {
-            log.info("jobid = {}", StringUtils.isNotBlank(pjd.getFateJobId()));
-            log.info("status = {} ,s = {}", pjd.getStatus(),JobRunning.getStatus());
             if (StringUtils.isNotBlank(pjd.getFateJobId()) && pjd.getStatus() == JobRunning.getStatus()) {
                 queryJobFateResponseDto = this.queryJobStatusByFate(pjd);
                 if (queryJobFateResponseDto != null && queryJobFateResponseDto.getData().size() > 0) {
