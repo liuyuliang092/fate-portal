@@ -139,8 +139,7 @@ public class LocalDataServiceImpl implements LocalDataService {
         int count = 0;
         String currentLine = bufferedReader.readLine();
         while (currentLine != null) {
-            count++;
-            if (count <= 10) {
+            if (count++ <= 10) {
                 preview.append(currentLine);
             }
             currentLine = bufferedReader.readLine();
