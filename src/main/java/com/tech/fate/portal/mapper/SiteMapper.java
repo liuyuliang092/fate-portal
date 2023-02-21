@@ -9,19 +9,9 @@ import java.sql.SQLException;
  * @date 2022.7.15
  */
 public interface SiteMapper {
-    /**
-     * 新增站点
-     * @param siteDto
-     * @return int
-     * @throws SQLException
-     */
+
     int updateSite(SiteDto siteDto) throws SQLException;
     int addSite(SiteDto siteDto)throws SQLException;
-    /**
-     * 查找站点配置
-     * @return SiteDto
-     * @throws SQLException
-     */
     SiteDto querySite( ) throws SQLException;
 
 }

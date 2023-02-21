@@ -4,10 +4,11 @@
 
     <insert id="newProject" parameterType="com.tech.fate.portal.dto.ProjectDto">
         insert into projects (created_at, updated_at, deleted_at, uuid, auto_approval_enabled, description, name, type,
-                              status, manager, managing_site_name, managing_site_party_id, managing_site_uuid)
+                              status, manager, managing_site_name, managing_site_party_id, managing_site_uuid, creator,
+                              updator)
         values (#{dto.createdAt}, #{dto.updatedAt}, #{dto.deletedAt}, #{dto.uuid}, #{dto.autoApprovalEnabled},
                 #{dto.description}, #{dto.name}, #{dto.type}, #{dto.status}, #{dto.manager}, #{dto.managingSiteName},
-                #{dto.managingSitePartyId}, #{dto.managingSiteUuid})
+                #{dto.managingSitePartyId}, #{dto.managingSiteUuid}, #{creator}, #{updator})
     </insert>
 
     <insert id="addJobParticipant" parameterType="com.tech.fate.portal.dto.JobParticipantDto">
@@ -26,14 +27,15 @@
                           initiating_site_uuid, initiating_site_name,
                           initiating_site_party_id, initiating_user, is_initiating_site, fate_job_id, fate_job_status,
                           fate_model_id, fate_model_version,
-                          finished_at, result_json, conf, dsl, request_json)
+                          finished_at, result_json, conf, dsl, request_json, creator,
+                          updator)
         values (#{createdAt}, #{deletedAt}, #{updatedAt}, #{name}, #{description}, #{uuid}, #{projectUuid}, #{type},
                 #{status}, #{statusMessage}, #{algorithmType}, #{algorithmComponentName},
                 #{evaluateComponentName}, #{algorithmConfig}, #{modelName}, #{predictingModelUuid},
                 #{initiatingSiteUuid}, #{initiatingSiteName},
                 #{initiatingSitePartyId}, #{initiatingUser}, #{isInitiatingSite}, #{fateJobId}, #{fateJobStatus},
                 #{fateModelId}, #{fateModelVersion},
-                #{finishedAt}, #{resultJson}, #{conf}, #{dsl}, #{requestJson})
+                #{finishedAt}, #{resultJson}, #{conf}, #{dsl}, #{requestJson}, #{creator}, #{updator})
     </insert>
 
     <insert id="addProjectParticipant" parameterType="com.tech.fate.portal.dto.ProjectParticipantsDto">
@@ -81,21 +83,25 @@
     </select>
 
 
-    <select id="queryClosedProjectsList" parameterType="String" resultMap="QueryProjectResult">
+    <select id="queryClosedProjectsList" parameterType="com.tech.fate.portal.dto.ProjectDto"
+            resultMap="QueryProjectResult">
         select a.status,
-               a.created_at,
-               a.description,
-               a.manager,
-               a.managing_site_name,
-               a.managing_site_party_id,
-               a.name,
-               a.uuid,
-               a.managing_site_uuid
+        a.created_at,
+        a.description,
+        a.manager,
+        a.managing_site_name,
+        a.managing_site_party_id,
+        a.name,
+        a.uuid,
+        a.managing_site_uuid
         from projects AS a,
-             project_participants AS b
-        where b.site_uuid = #{siteUuid}
-          AND b.project_uuid = a.uuid
-          AND a.status = 6
+        project_participants AS b
+        where b.site_uuid = #{projectDto.managingSiteUuid}
+        <if test="projectDto.creator != null and projectDto.creator != '' and projectDto.creator != 'admin'">
+            and a.creator = #{projectDto.creator}
+        </if>
+        AND b.project_uuid = a.uuid
+        AND a.status = 6
     </select>
 
     <select id="queryInvitedProjectsList" resultMap="QueryProjectResult">
@@ -110,23 +116,27 @@
         from project_invitations AS a,
              projects AS c
         where a.site_uuid = #{siteUuid}
-          and a.status=#{status}
+          and a.status = #{status}
           AND a.project_uuid = c.uuid
     </select>
 
-    <select id="queryJoinedProjectsList" parameterType="String" resultMap="QueryProjectResult">
+    <select id="queryJoinedProjectsList" parameterType="com.tech.fate.portal.dto.ProjectDto"
+            resultMap="QueryProjectResult">
         select a.created_at,
-               a.description,
-               a.manager,
-               a.managing_site_name,
-               a.managing_site_party_id,
-               a.name,
-               a.uuid,
-               a.managing_site_uuid
+        a.description,
+        a.manager,
+        a.managing_site_name,
+        a.managing_site_party_id,
+        a.name,
+        a.uuid,
+        a.managing_site_uuid
         from projects AS a,
-             project_participants AS b
-        where b.site_uuid = #{siteUuid}
-          AND b.project_uuid = a.uuid
+        project_participants AS b
+        where b.site_uuid = #{projectDto.managingSiteUuid}
+        <if test="projectDto.creator != null and projectDto.creator != '' and projectDto.creator != 'admin'">
+            and a.creator = #{projectDto.creator}
+        </if>
+        AND b.project_uuid = a.uuid
         ORDER BY created_at desc
     </select>
 
@@ -302,11 +312,12 @@
         where uuid = #{uuid}
     </select>
     <insert id="addInvitation" parameterType="com.tech.fate.portal.dto.ProjectInvitationDto">
-        insert into project_invitations(uuid,project_uuid,site_uuid,status)
+        insert into project_invitations(uuid, project_uuid, site_uuid, status)
         values (#{uuid}, #{projectUuid}, #{siteUuid}, #{status})
     </insert>
     <insert id="addProject" parameterType="com.tech.fate.portal.dto.ProjectDto">
-        insert into projects(uuid,name,description,auto_approval_enabled,type,status,manager,managing_site_name,managing_site_party_id,managing_site_uuid)
+        insert into projects(uuid, name, description, auto_approval_enabled, type, status, manager, managing_site_name,
+                             managing_site_party_id, managing_site_uuid)
         values (#{uuid}, #{name}, #{description},
                 #{autoApprovalEnabled},
                 #{type}, #{status}, #{manager}, #{managingSiteName}, #{managingSitePartyId}, #{managingSiteUuid})
@@ -324,7 +335,10 @@
         where uuid = #{uuid}
     </update>
 
-    <select id="projectInvitationList" resultType="com.tech.fate.portal.dto.ProjectInvitationDto" parameterType="java.lang.String">
-        select uuid,project_uuid,site_uuid,status from project_invitations where uuid = #{uuid}
+    <select id="projectInvitationList" resultType="com.tech.fate.portal.dto.ProjectInvitationDto"
+            parameterType="java.lang.String">
+        select uuid, project_uuid, site_uuid, status
+        from project_invitations
+        where uuid = #{uuid}
     </select>
 </mapper>

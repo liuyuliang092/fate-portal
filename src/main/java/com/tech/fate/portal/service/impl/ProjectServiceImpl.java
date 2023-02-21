@@ -34,6 +34,7 @@ import com.tech.fate.portal.service.JobService;
 import com.tech.fate.portal.service.LocalDataService;
 import com.tech.fate.portal.service.SiteService;
 import com.tech.fate.portal.util.DateUtils;
+import com.tech.fate.portal.util.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import com.tech.fate.portal.common.ApiResponse;
@@ -52,6 +53,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -88,6 +91,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Lazy
     @Autowired
     private JobService jobService;
+    @Resource
+    private HttpServletRequest request;
 
     @Override
     public void newProject(BasicProjectInfoDto basicProjectInfoDto, String userName) throws Exception {
@@ -110,6 +115,8 @@ public class ProjectServiceImpl implements ProjectService {
             projectDto.setManagingSitePartyId(siteDto.getPartyId());
         }
         projectDto.setManager(userName);
+        projectDto.setCreator(userName);
+        projectDto.setUpdator(userName);
         projectMapper.newProject(projectDto);
         ProjectParticipantsDto participantsDto = new ProjectParticipantsDto();
         participantsDto.setCreatedAt(DateUtil.formatDateTime(new Date()));
@@ -295,6 +302,8 @@ public class ProjectServiceImpl implements ProjectService {
         jobDto.setConf(jobRequestDto.getConfJson());
         jobDto.setDsl(jobRequestDto.getDslJson());
         jobDto.setRequestJson(JSON.toJSONString(jobRequestDto));
+        jobDto.setCreator(userName);
+        jobDto.setUpdator(userName);
         projectMapper.createNewJob(jobDto);
         return ApiResponse.ok("success");
     }
@@ -589,7 +598,10 @@ public class ProjectServiceImpl implements ProjectService {
     public Page<ClosedProjectsDto> queryClosedProjectsList(Page<ClosedProjectsDto> page, String siteUuid) throws Exception {
         List<ClosedProjectsDto> closedProjectsList = new ArrayList<ClosedProjectsDto>();
         Page<ProjectsVo> page1 = new Page<>(page.getCurrent(), page.getSize());
-        List<ProjectsVo> projectsVoList = projectMapper.queryClosedProjectsList(page1, siteUuid);
+        ProjectDto projectDto = new ProjectDto();
+        projectDto.setCreator(TokenUtils.getLoginUserName(request));
+        projectDto.setManagingSiteUuid(siteUuid);
+        List<ProjectsVo> projectsVoList = projectMapper.queryClosedProjectsList(page1, projectDto);
         for (ProjectsVo pd : projectsVoList) {
             ClosedProjectsDto closedProjectsDto = new ClosedProjectsDto();
             closedProjectsDto.setStatus(pd.getProjectStatus());
@@ -651,7 +663,10 @@ public class ProjectServiceImpl implements ProjectService {
     public Page<JoinedProjectsDto> allProjectsList(Page<JoinedProjectsDto> pageJoinedList, String siteUuid) throws Exception {
         List<JoinedProjectsDto> allProjectsDtoList = Lists.newArrayList();
         Page<ProjectsVo> page = new Page<>(pageJoinedList.getCurrent(), pageJoinedList.getSize());
-        Page<ProjectsVo> projectsVoList = projectMapper.queryJoinedProjectsList(page, siteUuid);
+        ProjectDto projectDto = new ProjectDto();
+        projectDto.setCreator(TokenUtils.getLoginUserName(request));
+        projectDto.setManagingSiteUuid(siteUuid);
+        Page<ProjectsVo> projectsVoList = projectMapper.queryJoinedProjectsList(page, projectDto);
         for (ProjectsVo pd : projectsVoList.getRecords()) {
             JoinedProjectsDto joinedProjectsDto = new JoinedProjectsDto();
             joinedProjectsDto.setCreationAt(pd.getCreateDate());
@@ -665,7 +680,7 @@ public class ProjectServiceImpl implements ProjectService {
             joinedProjectsDto.setProjectParticipantsNum(projectMapper.queryProjectParticipantList(pd.getProjectUuid()).size());
             allProjectsDtoList.add(joinedProjectsDto);
         }
-        pageJoinedList = (Page)ObjectUtil.cloneByStream(projectsVoList);
+        pageJoinedList = (Page) ObjectUtil.cloneByStream(projectsVoList);
         pageJoinedList.setRecords(allProjectsDtoList);
         return pageJoinedList;
     }

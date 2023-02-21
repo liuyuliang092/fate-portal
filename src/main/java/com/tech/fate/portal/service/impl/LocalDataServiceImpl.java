@@ -32,6 +32,7 @@ import com.tech.fate.portal.model.FileInfo;
 import com.tech.fate.portal.model.FileSliceInfo;
 import com.tech.fate.portal.service.SiteService;
 import com.tech.fate.portal.util.FileUtils;
+import com.tech.fate.portal.util.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import com.tech.fate.portal.common.ApiResponse;
@@ -51,6 +52,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -81,11 +84,15 @@ public class LocalDataServiceImpl implements LocalDataService {
     @Autowired
     private SiteService siteService;
 
+    @Resource
+    private HttpServletRequest request;
+
     @Override
     public IPage<LocalDataVo> listAllDataRecords(IPage<LocalDataVo> localDataVoPage) throws Exception {
         IPage<LocalDataDto> localDataDtoPage = new Page<>(localDataVoPage.getCurrent(), localDataVoPage.getSize());
-        localDataDtoPage = localDataMapper.queryLocalDataDtoList(localDataDtoPage);
-
+        LocalDataDto localDataDto = new LocalDataDto();
+        localDataDto.setCreator(TokenUtils.getLoginUserName(request));
+        localDataDtoPage = localDataMapper.queryLocalDataDtoList(localDataDtoPage, localDataDto);
         localDataVoPage = localDataDtoPage.convert(e -> {
             LocalDataVo localDataVo = new LocalDataVo(e);
             return localDataVo;
@@ -95,9 +102,10 @@ public class LocalDataServiceImpl implements LocalDataService {
 
     @Override
     public List<LocalDataDto> queryLocalDataDtoList() throws Exception {
-        //该Page无实际意义
         IPage<LocalDataDto> page = new Page<>(1, 10);
-        return localDataMapper.queryLocalDataDtoList(page).getRecords();
+        LocalDataDto localDataDto = new LocalDataDto();
+        localDataDto.setCreator(TokenUtils.getLoginUserName(request));
+        return localDataMapper.queryLocalDataDtoList(page, localDataDto).getRecords();
     }
 
     @Override
@@ -121,6 +129,7 @@ public class LocalDataServiceImpl implements LocalDataService {
 
     @Override
     public int saveData(InputStream inputStream, String fileName, String data, String name, String description) throws Exception {
+        String userName = TokenUtils.getLoginUserName(request);
         LocalDataDto localDataDto = new LocalDataDto();
         localDataDto.setCreatedAt(DateUtils.formatDateTime());
         localDataDto.setUpdatedAt(DateUtils.formatDateTime());
@@ -128,6 +137,8 @@ public class LocalDataServiceImpl implements LocalDataService {
         localDataDto.setUuid(UUID.fastUUID().toString().replaceAll("-", ""));
         localDataDto.setName(name);
         localDataDto.setDescription(description);
+        localDataDto.setCreator(userName);
+        localDataDto.setUpdator(userName);
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String headLine = bufferedReader.readLine();
         Assert.notBlank(headLine);

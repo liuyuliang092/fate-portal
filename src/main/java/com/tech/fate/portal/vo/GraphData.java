@@ -16,6 +16,7 @@
 package com.tech.fate.portal.vo;
 
 import cn.hutool.json.JSONUtil;
+import com.tech.fate.portal.common.CommonField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,7 @@ import javax.annotation.Nullable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GraphData {
+public class GraphData extends CommonField {
 
     @NotNull
     private String projectUuid;

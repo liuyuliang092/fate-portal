@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tech.fate.portal.mapper;
+package com.tech.fate.portal.common;
 
-import com.tech.fate.portal.vo.GraphData;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * @author Array
- */
-public interface GraphMapper {
+ * @Author Array
+ **/
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class CommonField {
 
-    void saveGraphData(GraphData graphData);
+    public String creator;
 
-    void updateGraphData(GraphData graphData);
+    public String updator;
 
-    GraphData queryGraphData(GraphData graphData);
 }

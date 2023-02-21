@@ -48,9 +48,8 @@ public class JobApiController {
         try {
             jobService.createJobByFml(jobRequestFmlDto);
         } catch (Exception e) {
-            return ApiResponse.fail("新建失败");
+            return ApiResponse.fail("failed");
         }
-
         return ApiResponse.ok("success");
     }
 
@@ -60,7 +59,7 @@ public class JobApiController {
         try {
             apiResponse = jobService.approvePendingJob(uuid);
         } catch (Exception e) {
-            return ApiResponse.fail("通过审批失败");
+            return ApiResponse.fail("failed");
         }
         return apiResponse;
     }
@@ -71,7 +70,7 @@ public class JobApiController {
         try {
             apiResponse = jobService.rejectPendingJob(uuid);
         } catch (Exception e) {
-            return ApiResponse.fail("拒绝审批失败");
+            return ApiResponse.fail("failed");
         }
         return apiResponse;
     }
@@ -96,7 +95,7 @@ public class JobApiController {
         try {
             jobDetailVo = jobService.getJobDetailInfo(uuid, userName);
         } catch (Exception e) {
-            return ApiResponse.fail("查询失败");
+            return ApiResponse.fail("failed");
         }
         return ApiResponse.ok("success", jobDetailVo);
     }
@@ -107,7 +106,7 @@ public class JobApiController {
         try {
             data = jobService.getComponents();
         } catch (SQLException e) {
-            return ApiResponse.fail("查询组件失败");
+            return ApiResponse.fail("failed");
         }
         return ApiResponse.ok("success", data);
     }
@@ -123,7 +122,7 @@ public class JobApiController {
 //        } catch (SQLException e) {
 //            log.error("查询任务执行结果异常", e);
 //        }
-        return ApiResponse.fail("查询失败");
+        return ApiResponse.fail("failed");
     }
 
     @DeleteMapping("/job/{uuid}")

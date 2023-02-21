@@ -15,6 +15,7 @@
  */
 package com.tech.fate.portal.dto;
 
+import com.tech.fate.portal.common.CommonField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,7 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProjectDto {
+public class ProjectDto extends CommonField {
     private long id;
 
     private Timestamp createdAt;

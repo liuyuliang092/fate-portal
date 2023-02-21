@@ -9,6 +9,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * @author Array
+ */
 public interface ComponentsMapper {
 
     List<ComponentsDto> queryAlgorithmComponents();

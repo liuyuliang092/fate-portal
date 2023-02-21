@@ -5,25 +5,24 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.tech.fate.portal.dto.LocalDataDto;
 import com.tech.fate.portal.model.FileInfo;
 import com.tech.fate.portal.model.FileSliceInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.lang.Nullable;
 
 import java.sql.SQLException;
 import java.util.List;
 
-
 /**
- * @author Iwi
- * @date 2022.7.15
+ * @author Array
  */
 public interface LocalDataMapper {
 
-    IPage<LocalDataDto> queryLocalDataDtoList(@Nullable IPage<LocalDataDto> localDataDtoPage) throws SQLException;
+    IPage<LocalDataDto> queryLocalDataDtoList(@Nullable IPage<LocalDataDto> localDataDtoPage, @Param("localDataDto") LocalDataDto localDataDto) throws SQLException;
 
-    LocalDataDto queryLocalDataByUuid(String uuid);
+    LocalDataDto queryLocalDataByUuid(@Param("uuid") String uuid);
 
     int addLocalData(LocalDataDto localDataDto) throws SQLException;
 
-    int deleteLocalDataByUuid(String uuid) throws SQLException;
+    int deleteLocalDataByUuid(@Param("uuid") String uuid) throws SQLException;
 
     int saveFileSlice(FileSliceInfo fileSliceInfo);
 

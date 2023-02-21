@@ -25,9 +25,12 @@
     </resultMap>
 
 
-    <select id="queryLocalDataDtoList" resultMap="localDataMap">
+    <select id="queryLocalDataDtoList" resultMap="localDataMap" parameterType="com.tech.fate.portal.dto.LocalDataDto">
         select *
         from local_data
+        <if test="localDataDto.creator != null and localDataDto.creator != '' and localDataDto.creator != 'admin'">
+            where creator = #{localDataDto.creator}
+        </if>
     </select>
 
     <select id="queryLocalDataByUuid" parameterType="String" resultMap="localDataMap">
@@ -39,9 +42,10 @@
     <insert id="addLocalData" parameterType="com.tech.fate.portal.dto.LocalDataDto">
         insert into local_data
         (created_at, updated_at, deleted_at, uuid, `name`, description, `column`, `table_name`, table_namespace,
-         `count`, features, preview, job_id, job_conf, local_file_path)
+         `count`, features, preview, job_id, job_conf, local_file_path, creator, updator)
         values (#{createdAt}, #{updatedAt}, #{deletedAt}, #{uuid}, #{name}, #{description}, #{column}, #{tableName},
-                #{tableNamespace}, #{count}, #{features}, #{preview}, #{jobId}, #{jobConf}, #{localFilePath})
+                #{tableNamespace}, #{count}, #{features}, #{preview}, #{jobId}, #{jobConf}, #{localFilePath},
+                #{creator}, #{updator})
     </insert>
 
     <delete id="deleteLocalDataByUuid" parameterType="String">
@@ -58,7 +62,7 @@
 
     <insert id="saveFile" parameterType="com.tech.fate.portal.model.FileInfo">
         insert into files
-            (uuid, file_name, file_hash,file_path)
+            (uuid, file_name, file_hash, file_path)
         values (#{uuid}, #{fileName}, #{fileHash}, #{filePath})
     </insert>
 
