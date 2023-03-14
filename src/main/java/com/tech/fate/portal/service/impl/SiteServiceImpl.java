@@ -167,7 +167,7 @@ public class SiteServiceImpl implements SiteService {
     @Override
     public ApiResponse checkFateFlowHealth() throws Exception {
         Socket socket = new Socket();
-        boolean isConnected = Boolean.FALSE;
+        boolean isConnected = false;
 
         try {
             SiteVo siteVo = this.querySite();
@@ -181,8 +181,12 @@ public class SiteServiceImpl implements SiteService {
             log.error("telnet fate-flow server error", e);
             throw new Exception();
         }finally {
-            if(socket != null){
-                socket.close();
+            if(socket != null) {
+                try {
+                    socket.close();
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                }
             }
         }
         if (isConnected) {

@@ -29,7 +29,7 @@ public class FatePortalExceptionHandler {
     @ExceptionHandler(FatePortalException.class)
     public Result<?> handleFatePortalException(FatePortalException e) {
         log.error(e.getMessage(), e);
-        return Result.error(e.getMessage());
+        return Result.error("error");
     }
 
     @ExceptionHandler(Exception.class)

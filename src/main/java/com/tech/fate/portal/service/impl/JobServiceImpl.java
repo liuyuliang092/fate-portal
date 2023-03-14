@@ -15,38 +15,37 @@
  */
 package com.tech.fate.portal.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONException;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.common.FateFlowResult;
 import com.tech.fate.portal.common.status.JobStatus;
 import com.tech.fate.portal.constants.CommonConstant;
 import com.tech.fate.portal.constants.ComponentStatusConstants;
 import com.tech.fate.portal.constants.FateFlowConstants;
 import com.tech.fate.portal.constants.FmlManagerConstants;
-import com.tech.fate.portal.service.SiteService;
-import com.tech.fate.portal.service.node.ComponentsService;
-import com.tech.fate.portal.util.DateUtils;
-import com.tech.fate.portal.vo.*;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.dto.*;
 import com.tech.fate.portal.mapper.JobMapper;
 import com.tech.fate.portal.mapper.ProjectMapper;
 import com.tech.fate.portal.service.JobService;
 import com.tech.fate.portal.service.LocalDataService;
+import com.tech.fate.portal.service.SiteService;
+import com.tech.fate.portal.service.node.ComponentsService;
+import com.tech.fate.portal.util.DateUtils;
 import com.tech.fate.portal.util.HttpUtils;
+import com.tech.fate.portal.vo.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -54,8 +53,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
-import static com.tech.fate.portal.common.status.JobFateStatus.FAILED;
-import static com.tech.fate.portal.common.status.JobFateStatus.SUCCESS;
 import static com.tech.fate.portal.common.status.JobParticipantStatus.JobParticipantAccept;
 import static com.tech.fate.portal.common.status.JobParticipantStatus.JobParticipantReject;
 import static com.tech.fate.portal.common.status.JobStatus.*;
@@ -348,7 +345,11 @@ public class JobServiceImpl implements JobService {
         } catch (Exception e) {
             log.error("query job execute result from fate by fate_job_id error,message = ", e);
         } finally {
-            jobsSize.countDown();
+            try {
+               jobsSize.countDown();
+           }catch(Exception e){
+                log.error(e.getMessage());
+            }
         }
         return queryJobFateResponseDto;
     }
@@ -401,7 +402,11 @@ public class JobServiceImpl implements JobService {
             log.error("query component status error,jobId = {},partyId = {},role = {},component = {}", jobId, partyId, role, componentsInfo);
             throw new Exception(e);
         } finally {
-            countDownLatch.countDown();
+            try {
+                countDownLatch.countDown();
+            }catch(Exception e){
+                log.error("countDown error:"+e.getMessage());
+            }
         }
     }
 

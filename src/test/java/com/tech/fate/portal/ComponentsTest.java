@@ -11,9 +11,10 @@ import com.tech.fate.portal.dto.ComponentsParamsDto;
 import com.tech.fate.portal.dto.ComponentsParamsSettingsDto;
 import com.tech.fate.portal.mapper.ComponentsMapper;
 import com.tech.fate.portal.service.node.ComponentsService;
-import com.tech.fate.portal.vo.*;
+import com.tech.fate.portal.vo.ComponentsBaseInfo;
+import com.tech.fate.portal.vo.ComponentsParamsSettings;
+import com.tech.fate.portal.vo.ComponentsVo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -235,6 +235,22 @@ public class ComponentsTest {
         log.info("=== {}", list);
 
     }
+//    @Test
+//    public void jasyp() {
+//
+//        StandardPBEStringEncryptor standardPBEStringEncryptor = new StandardPBEStringEncryptor();
+//        /*配置文件中配置如下的算法*/
+//        standardPBEStringEncryptor.setAlgorithm("PBEWithMD5AndDES");
+//        /*配置文件中配置的password*/
+//        standardPBEStringEncryptor.setPassword("EWRREWRERWECCCXC");
+//        /*要加密的文本*/
+//        String username = standardPBEStringEncryptor.encrypt("fate");
+//        String password = standardPBEStringEncryptor.encrypt("fate_dev");
+//        /*将加密的文本写到配置文件中*/
+//        System.out.println("username = " + username);
+//        System.out.println("password = " + password);
+//    }
+
 
     private static Object transType(Object value) {
         String str = JSONUtil.toJsonStr(value);

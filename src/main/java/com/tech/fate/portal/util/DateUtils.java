@@ -15,7 +15,7 @@
  */
 package com.tech.fate.portal.util;
 
-import org.springframework.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.beans.PropertyEditorSupport;
 import java.sql.Timestamp;
@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
+@Slf4j
 public class DateUtils extends PropertyEditorSupport {
 
     public static ThreadLocal<SimpleDateFormat> date_sdf = new ThreadLocal<SimpleDateFormat>() {
@@ -173,7 +173,7 @@ public class DateUtils extends PropertyEditorSupport {
      * @return
      */
     public static Date str2Date(String str, SimpleDateFormat sdf) {
-        if (null == str || "".equals(str)) {
+        if (str.length()==0) {
             return null;
         }
         Date date = null;
@@ -181,7 +181,7 @@ public class DateUtils extends PropertyEditorSupport {
             date = sdf.parse(str);
             return date;
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
         return null;
     }
@@ -216,7 +216,7 @@ public class DateUtils extends PropertyEditorSupport {
             nowDate = sformat.parse(date);
         } catch (ParseException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
         return sformat.format(nowDate);
     }

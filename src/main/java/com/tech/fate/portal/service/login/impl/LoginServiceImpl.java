@@ -1,7 +1,6 @@
 package com.tech.fate.portal.service.login.impl;
 
 import com.tech.fate.portal.dto.LoginResultDto;
-import com.tech.fate.portal.dto.UserInfoDto;
 import com.tech.fate.portal.service.login.LoginService;
 import com.tech.fate.portal.util.JwtUtil;
 import com.tech.fate.portal.util.RedisUtil;
@@ -27,8 +26,8 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public LoginResultDto loginIn(LoginUser loginUser) {
         LoginResultDto loginResultDto = new LoginResultDto();
-        // String md5pwd = DigestUtils.md5DigestAsHex(password.getBytes());
-        if (loginUser != null && userName.equals(loginUser.getUsername()) && password.equals(loginUser.getPassword())) {
+        String md5pwd = DigestUtils.md5DigestAsHex(password.getBytes());
+        if (loginUser != null && userName.equals(loginUser.getUsername()) && md5pwd.equals(loginUser.getPassword())) {
             loginResultDto.setSuccess(Boolean.TRUE);
             String token = JwtUtil.sign(loginUser.getUsername(), loginUser.getPassword());
             loginResultDto.setToken(token);

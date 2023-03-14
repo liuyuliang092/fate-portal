@@ -29,7 +29,7 @@ public class LocalDataVo {
         if(dataDto==null){
             return;
         }
-        setCreationTime(dataDto.getCreatedAt().toString());
+        setCreationTime(dataDto.getCreatedAt());
         setDataId(dataDto.getUuid());
         setFeatureSize(dataDto.getFeatures().split(",").length);
         setName(dataDto.getName());

@@ -43,7 +43,7 @@ public class DetailedInfoOfDataVo {
         if (localDataDto == null) {
             return;
         }
-        setCreationAt(localDataDto.getCreatedAt().toString());
+        setCreationAt(localDataDto.getCreatedAt());
         setDataId(localDataDto.getUuid());
         setDescription(localDataDto.getDescription());
         setFeatureSize(localDataDto.getFeatures().split(",").length);

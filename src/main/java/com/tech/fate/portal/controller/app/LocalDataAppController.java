@@ -120,11 +120,17 @@ public class LocalDataAppController {
                                    @RequestParam("filename") String filename,
                                    @RequestParam("seq") Integer seq,
                                    @RequestParam("type") String type) {
-        try {
-            return localDataService.saveFile(file.getBytes(), hash, filename, seq, type);
-        } catch (Exception e) {
-            log.error("upload slice error", e);
-            return ApiResponse.fail("failed");
+        String checkType="csv";
+        if(checkType.equals(type)) {
+            try {
+                return localDataService.saveFile(file.getBytes(), hash, filename, seq, type);
+            } catch (Exception e) {
+                log.error("upload slice error", e);
+                return ApiResponse.fail("failed");
+            }
+        }else{
+            log.error("up上传文件格式不对");
+            return ApiResponse.fail("type is not csv");
         }
     }
 

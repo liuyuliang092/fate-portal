@@ -100,10 +100,14 @@ public class HttpUtils {
         } catch (Exception e) {
             log.error("file upload error,url = {}", url, e);
         } finally {
-            try {
+            if(response!=null)
+            {
+                try{
                 response.close();
-            } catch (IOException e) {
-                log.error("CloseableHttpResponse close error,url = {}", url, e);
+                }
+                catch(IOException e) {
+                    log.error("CloseableHttpResponse close error,url = {}", url, e);
+                }
             }
         }
         return resultString;

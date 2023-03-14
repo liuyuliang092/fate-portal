@@ -130,7 +130,11 @@
 			<artifactId>guava</artifactId>
 			<version>23.6-jre</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.github.ulisesbocchio</groupId>
+			<artifactId>jasypt-spring-boot</artifactId>
+			<version>2.1.0</version>
+		</dependency>
 <!--		<dependency>-->
 <!--			<groupId>org.apache.shiro</groupId>-->
 <!--			<artifactId>shiro-spring-boot-starter</artifactId>-->

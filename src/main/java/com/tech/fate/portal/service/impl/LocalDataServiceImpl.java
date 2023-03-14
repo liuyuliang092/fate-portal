@@ -16,54 +16,42 @@
 package com.tech.fate.portal.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.tech.fate.portal.common.FateFlowResult;
-import com.tech.fate.portal.constants.FateFlowConstants;
-import com.tech.fate.portal.model.Chunk;
-import com.tech.fate.portal.model.FileInfo;
-import com.tech.fate.portal.model.FileSliceInfo;
-import com.tech.fate.portal.service.SiteService;
-import com.tech.fate.portal.util.FileUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import com.tech.fate.portal.common.ApiResponse;
 import com.tech.fate.portal.common.FMLException;
-import com.tech.fate.portal.util.DateUtils;
+import com.tech.fate.portal.common.FateFlowResult;
+import com.tech.fate.portal.constants.FateFlowConstants;
 import com.tech.fate.portal.dto.DownloadParameterDto;
 import com.tech.fate.portal.dto.LocalDataDto;
 import com.tech.fate.portal.mapper.LocalDataMapper;
+import com.tech.fate.portal.model.FileInfo;
+import com.tech.fate.portal.model.FileSliceInfo;
 import com.tech.fate.portal.service.LocalDataService;
+import com.tech.fate.portal.service.SiteService;
+import com.tech.fate.portal.util.DateUtils;
 import com.tech.fate.portal.util.HttpUtils;
 import com.tech.fate.portal.vo.DetailedInfoOfDataVo;
 import com.tech.fate.portal.vo.LocalDataVo;
-import org.springframework.beans.BeanUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static com.tech.fate.portal.common.HttpCommon.FATE_FLOW_BASE_URL;
+import java.util.regex.Pattern;
 
 
 /**
@@ -129,15 +117,18 @@ public class LocalDataServiceImpl implements LocalDataService {
         localDataDto.setName(name);
         localDataDto.setDescription(description);
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        String headLine = bufferedReader.readLine();
-        Assert.notBlank(headLine);
+        String headLine="",currentLine="";
+        if(bufferedReader !=null) {
+            headLine = bufferedReader.readLine();
+            currentLine = bufferedReader.readLine();
+        }
         StringBuilder preview = new StringBuilder();
         preview.append(headLine);
         if (headLine != null) {
             localDataDto.setColumn(headLine);
+            localDataDto.setFeatures(headLine.substring(headLine.indexOf(",") + 1));
         }
         int count = 0;
-        String currentLine = bufferedReader.readLine();
         while (currentLine != null) {
             if (count++ <= 10) {
                 preview.append(currentLine);
@@ -148,7 +139,6 @@ public class LocalDataServiceImpl implements LocalDataService {
         localDataDto.setTableName(rs.getString("table_name"));
         localDataDto.setTableNamespace(rs.getString("namespace"));
         localDataDto.setCount(count);
-        localDataDto.setFeatures(headLine.substring(headLine.indexOf(",") + 1));
         localDataDto.setPreview(preview.toString());
         localDataDto.setJobId(rs.getString("job_id"));
         localDataDto.setJobConf(rs.getString("runtime_conf_path"));
@@ -194,12 +184,6 @@ public class LocalDataServiceImpl implements LocalDataService {
             throw new FMLException();
         } catch (Exception e) {
             throw new Exception(e);
-        } finally {
-//            if (hash != null) {
-//                Path path = Paths.get(uploadFolder + hash);
-//                Path pathCreate = Files.createDirectories(path);
-//                FileUtil.del(pathCreate);
-//            }
         }
     }
 
@@ -225,15 +209,19 @@ public class LocalDataServiceImpl implements LocalDataService {
             throw new FMLException();
         }
     }
-
+    private static Pattern FilePattern = Pattern.compile("[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*()——+|{}【】‘；：”“’。，、？\\\\]");
     @Override
     public ApiResponse saveFile(byte[] bytes, String hash, String fileName, Integer seq, String type) throws Exception {
         RandomAccessFile randomAccessFile = null;
+        if( FilePattern.matcher( hash).find()||FilePattern.matcher( fileName).find()||FilePattern.matcher( type).find())
+        {
+            return ApiResponse.fail("参数包含特殊字符");
+        }else{
         try {
             if (!this.checkFileSlice(hash, seq)) {
                 Path path = Paths.get(uploadFolder + hash);
                 Path pathCreate = Files.createDirectories(path);
-                randomAccessFile = new RandomAccessFile(pathCreate + "\\" + fileName + "." + type + seq, "rw");
+                randomAccessFile = new RandomAccessFile(pathCreate + File.separator+ fileName + "." + type + seq, "rw");
                 randomAccessFile.write(bytes);
                 this.saveFileSlice(hash, fileName, seq, type);
             }
@@ -242,10 +230,15 @@ public class LocalDataServiceImpl implements LocalDataService {
             return ApiResponse.fail("failed");
         } finally {
             if (randomAccessFile != null) {
-                randomAccessFile.close();
+                try {
+                    randomAccessFile.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage());
+                }
             }
         }
         return ApiResponse.ok("success");
+        }
     }
 
     @Override
@@ -255,11 +248,11 @@ public class LocalDataServiceImpl implements LocalDataService {
         FileChannel out = null;
         FileChannel in = null;
         try {
-            in = new RandomAccessFile(pathCreate + "\\" + fileName + "." + type, "rw").getChannel();
+            in = new RandomAccessFile(pathCreate + File.separator + fileName + "." + type, "rw").getChannel();
             int index = 1;
             long start = 0;
             while (true) {
-                String fileSlice = pathCreate + "\\" + fileName + "." + type + index;
+                String fileSlice = pathCreate + File.separator + fileName + "." + type + index;
                 if (!new File(fileSlice).exists()) {
                     break;
                 }
@@ -271,8 +264,8 @@ public class LocalDataServiceImpl implements LocalDataService {
                 index++;
             }
             in.close();
-            File file = new File(pathCreate + "\\" + fileName + "." + type);
-            this.saveFile(hash, fileName, pathCreate + "\\" + fileName + "." + type);
+            File file = new File(pathCreate + File.separator + fileName + "." + type);
+            this.saveFile(hash, fileName, pathCreate + File.separator + fileName + "." + type);
             this.uploadData(file, name, description, hash);
         } catch (Exception e) {
             log.error("[fate-portal] failed to merge file,filename = {},hash = {},", fileName, hash, e);
@@ -286,7 +279,7 @@ public class LocalDataServiceImpl implements LocalDataService {
                     in.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+               log.error(e.getMessage());
             }
         }
         return ApiResponse.ok("success");
