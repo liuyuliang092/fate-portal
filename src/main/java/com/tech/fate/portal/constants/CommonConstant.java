@@ -39,4 +39,6 @@ public interface CommonConstant {
 
     public final static String admin = "admin";
 
+    public final static int LOGIN_FAILED_LIMITED = 5;
+
 }

@@ -19,6 +19,7 @@ import cn.hutool.json.JSONUtil;
 import com.tech.fate.portal.api.CommonApi;
 import com.tech.fate.portal.constants.CacheConstant;
 import com.tech.fate.portal.constants.CommonConstant;
+import com.tech.fate.portal.constants.RedisKeysConstants;
 import com.tech.fate.portal.exception.FatePortalException;
 import com.tech.fate.portal.vo.LoginUser;
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +39,13 @@ public class TokenUtils {
         return token;
     }
 
-    public static boolean verifyToken(HttpServletRequest request, CommonApi commonApi, RedisUtil redisUtil) {
+    public static boolean verifyToken(HttpServletRequest request, RedisUtil redisUtil) {
         log.debug(" -- url --" + request.getRequestURL());
         String token = getTokenByRequest(request);
-        return TokenUtils.verifyToken(token, commonApi, redisUtil);
+        return TokenUtils.verifyRefreshToken(token, redisUtil);
     }
 
-    public static boolean verifyToken(String token, CommonApi commonApi, RedisUtil redisUtil) {
+    public static boolean verifyRefreshToken(String token, RedisUtil redisUtil) {
         if (StringUtils.isBlank(token)) {
             throw new FatePortalException("token不能为空!");
         }
@@ -52,23 +53,24 @@ public class TokenUtils {
         if (username == null) {
             throw new FatePortalException("token非法无效!");
         }
-        LoginUser user = TokenUtils.getLoginUser(username, commonApi, redisUtil);
-        if (user == null) {
-            throw new FatePortalException("用户不存在!");
-        }
-        if (!jwtTokenRefresh(token, username, user.getPassword(), redisUtil)) {
+//        LoginUser user = TokenUtils.getLoginUser(username, commonApi, redisUtil);
+//        if (user == null) {
+//            throw new FatePortalException("用户不存在!");
+//        }
+        if (!jwtTokenRefresh(username, "admin", redisUtil)) {
             throw new FatePortalException(CommonConstant.TOKEN_IS_INVALID_MSG);
         }
         return true;
     }
 
-    private static boolean jwtTokenRefresh(String token, String userName, String passWord, RedisUtil redisUtil) {
-        String cacheToken = JSONUtil.toJsonStr(redisUtil.get(CommonConstant.PREFIX_USER_TOKEN + token));
+    private static boolean jwtTokenRefresh(String userName, String passWord, RedisUtil redisUtil) {
+        String tokenKey = RedisKeysConstants.BASIC + RedisKeysConstants.TOKEN;
+        String cacheToken = JSONUtil.toJsonStr(redisUtil.get(tokenKey));
         if (StringUtils.isNotEmpty(cacheToken)) {
             if (!JwtUtil.verify(cacheToken, userName, passWord)) {
-                String newAuthorization = JwtUtil.sign(userName, passWord);
-                redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, newAuthorization);
-                redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME * 2 / 1000);
+//                String newAuthorization = JwtUtil.sign(userName, passWord);
+//                redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, newAuthorization);
+                redisUtil.expire(tokenKey, JwtUtil.EXPIRE_TIME * 2 / 1000);
             }
             return true;
         }

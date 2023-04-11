@@ -20,4 +20,10 @@ public class RedisKeysConstants {
     public final static String BASIC = "fate-portal:";
 
     public final static String SITE_INFO = "site";
+
+    public final static String LOGIN_ERROR_COUNT = "login:error:count:";
+
+    public final static String LOCKRD_USER = "locked:user:";
+
+    public final static String TOKEN = "login:token:";
 }

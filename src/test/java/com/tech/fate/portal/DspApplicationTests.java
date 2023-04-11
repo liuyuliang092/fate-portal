@@ -15,6 +15,7 @@ import com.tech.fate.portal.service.LocalDataService;
 import com.tech.fate.portal.service.ProjectService;
 import com.tech.fate.portal.util.DateUtils;
 import com.tech.fate.portal.util.HttpUtils;
+import com.tech.fate.portal.util.JwtUtil;
 import com.tech.fate.portal.vo.ComponentsParams;
 import com.tech.fate.portal.vo.ProjectAssociateDataVo;
 import com.tech.fate.portal.vo.ProjectParticipantAndDataVo;
@@ -50,9 +51,10 @@ class DspApplicationTests {
 //        log.info("token = {}", sign);
 //        String username = JwtUtil.getUsername(sign);
 //        log.info("username = {}", username);
-        String json = ResourceUtil.readUtf8Str("data/menuList.json");
-        log.info("menu = {}", json);
-        System.out.println(Integer.toHexString(1232321323));
+//        String json = ResourceUtil.readUtf8Str("data/menuList.json");
+//        log.info("menu = {}", json);
+//        System.out.println(Integer.toHexString(1232321323));
+        log.info("token = {}",JwtUtil.sign("admin","admin"));
     }
 
 //    @Autowired
@@ -193,5 +195,6 @@ class DspApplicationTests {
 //        log.info("fileName = {}",folder + "breast_hetero_guest-1.csv");
 //        FileUtil.del(folder + "breast_hetero_guest-1.csv");
     }
+
 
 }

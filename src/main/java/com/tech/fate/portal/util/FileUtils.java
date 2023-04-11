@@ -15,6 +15,7 @@
  */
 package com.tech.fate.portal.util;
 
+import com.google.common.collect.Lists;
 import com.tech.fate.portal.model.Chunk;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -76,5 +78,24 @@ public class FileUtils {
         } catch (Exception e) {
             throw new Exception(e);
         }
+    }
+
+    public static String getFileExtension(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < fileName.length() - 1) {
+            return fileName.substring(dotIndex + 1);
+        } else {
+            return "";
+        }
+    }
+
+    public static boolean checkFileType(String fileName, List<String> fileTypes) {
+        String fileType = getFileExtension(fileName);
+        return fileTypes.contains(fileType);
+    }
+
+    public static boolean checkFileType(String fileName) {
+        List<String> fileTypes = Lists.newArrayList("csv");
+        return checkFileType(fileName, fileTypes);
     }
 }

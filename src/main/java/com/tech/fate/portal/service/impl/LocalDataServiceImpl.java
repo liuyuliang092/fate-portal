@@ -241,6 +241,9 @@ public class LocalDataServiceImpl implements LocalDataService {
     public ApiResponse saveFile(byte[] bytes, String hash, String fileName, Integer seq, String type) throws Exception {
         RandomAccessFile randomAccessFile = null;
         try {
+            if(!FileUtils.checkFileType(fileName)){
+                return ApiResponse.fail("file type not supported");
+            }
             if (!this.checkFileSlice(hash, seq)) {
                 Path path = Paths.get(uploadFolder + hash);
                 Path pathCreate = Files.createDirectories(path);

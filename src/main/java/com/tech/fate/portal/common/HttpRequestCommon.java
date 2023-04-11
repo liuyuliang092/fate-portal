@@ -19,6 +19,9 @@ import cn.hutool.http.Header;
 import cn.hutool.http.HttpRequest;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @author NO.95
+ */
 @Slf4j
 public class HttpRequestCommon {
 

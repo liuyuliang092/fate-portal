@@ -18,10 +18,13 @@ package com.tech.fate.portal.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.tech.fate.portal.common.ApiResponse;
+import com.tech.fate.portal.constants.RedisKeysConstants;
 import com.tech.fate.portal.util.JwtUtil;
+import com.tech.fate.portal.util.RedisUtil;
 import com.tech.fate.portal.util.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -33,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author Marco Polo
@@ -45,6 +49,8 @@ public class AuthenticationFilter implements Filter {
 
     @Value("${login.password}")
     private String password;
+    @Autowired
+    private RedisUtil redisUtil;
 
 
     private final List<String> excludeUrlList = Lists.newArrayList("/api/auth/login", "/api/auth/logout", "/api/v1/status");
@@ -65,14 +71,17 @@ public class AuthenticationFilter implements Filter {
             return;
         }
         String token = TokenUtils.getTokenByRequest(httpServletRequest);
-        if (StringUtils.isNotBlank(token)) {
+        String tokenKey = RedisKeysConstants.BASIC + RedisKeysConstants.TOKEN;
+        String tokenFromCache = Optional.ofNullable(redisUtil.get(tokenKey)).toString();
+        if (StringUtils.isNotBlank(token) && StringUtils.isNotBlank(tokenFromCache)) {
             String userName = TokenUtils.getLoginUserName(httpServletRequest);
             if (JwtUtil.verify(token, userName, md5pwd)) {
+                TokenUtils.verifyRefreshToken(token, redisUtil);
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
         }
-        log.info("UNAUTHORIZED url = {}",path);
+        log.info("UNAUTHORIZED url = {}", path);
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
         httpResponse.setCharacterEncoding("UTF-8");
         httpResponse.setContentType("application/json; charset=utf-8");

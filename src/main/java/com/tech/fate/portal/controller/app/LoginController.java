@@ -44,7 +44,7 @@ public class LoginController {
         if (resultDto.isSuccess()) {
             return ApiResponse.ok("login success", resultDto);
         }
-        return ApiResponse.fail("login failed", resultDto);
+        return ApiResponse.fail(resultDto.getMessage());
     }
 
     @PostMapping("/auth/logout")
